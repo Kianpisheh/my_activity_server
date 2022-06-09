@@ -1,0 +1,400 @@
+Prefix(:=<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+Prefix(swrl:=<http://www.w3.org/2003/11/swrl#>)
+Prefix(swrlb:=<http://www.w3.org/2003/11/swrlb#>)
+Prefix(act_ont_01:=<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#>)
+
+
+Ontology(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01>
+<3>
+
+Declaration(Class(act_ont_01:Activity))
+Declaration(Class(act_ont_01:BackPack))
+Declaration(Class(act_ont_01:Bathroom))
+Declaration(Class(act_ont_01:Bedroom))
+Declaration(Class(act_ont_01:BoilingWater))
+Declaration(Class(act_ont_01:BrushingTeeth))
+Declaration(Class(act_ont_01:Cabinet))
+Declaration(Class(act_ont_01:CoffeeBeans))
+Declaration(Class(act_ont_01:CoffeeMachine))
+Declaration(Class(act_ont_01:ComputerDesk))
+Declaration(Class(act_ont_01:DishRack))
+Declaration(Class(act_ont_01:DishWasher))
+Declaration(Class(act_ont_01:Event))
+Declaration(Class(act_ont_01:FoodContainer))
+Declaration(Class(act_ont_01:HandGesture))
+Declaration(Class(act_ont_01:Kettle))
+Declaration(Class(act_ont_01:Kitchen))
+Declaration(Class(act_ont_01:LivingRoom))
+Declaration(Class(act_ont_01:Location))
+Declaration(Class(act_ont_01:Lying))
+Declaration(Class(act_ont_01:MakingCoffee))
+Declaration(Class(act_ont_01:Mug))
+Declaration(Class(act_ont_01:NotMakingCoffee))
+Declaration(Class(act_ont_01:Objects))
+Declaration(Class(act_ont_01:Posture))
+Declaration(Class(act_ont_01:Refrigerator))
+Declaration(Class(act_ont_01:ShakingFRL))
+Declaration(Class(act_ont_01:ShakingURL))
+Declaration(Class(act_ont_01:SingleEventActivity))
+Declaration(Class(act_ont_01:Sitting))
+Declaration(Class(act_ont_01:Standing))
+Declaration(Class(act_ont_01:Stove))
+Declaration(Class(act_ont_01:ToothBrush))
+Declaration(Class(act_ont_01:WaterBottle))
+Declaration(Class(act_ont_01:WaterFaucet))
+Declaration(Class(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity>))
+Declaration(Class(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_01>))
+Declaration(Class(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_02>))
+Declaration(ObjectProperty(act_ont_01:hasEvent))
+Declaration(DataProperty(act_ont_01:hasEndTime))
+Declaration(DataProperty(act_ont_01:hasStartTime))
+Declaration(NamedIndividual(act_ont_01:activity_01))
+Declaration(NamedIndividual(act_ont_01:activity_02_b))
+Declaration(NamedIndividual(act_ont_01:activity_03_cf))
+Declaration(NamedIndividual(act_ont_01:activity_04_ncf))
+Declaration(NamedIndividual(act_ont_01:activity_05_not_brushing_teeth))
+Declaration(NamedIndividual(act_ont_01:back_pack_01))
+Declaration(NamedIndividual(act_ont_01:bathroom_01))
+Declaration(NamedIndividual(act_ont_01:cabinet_01))
+Declaration(NamedIndividual(act_ont_01:coffee_bean_01))
+Declaration(NamedIndividual(act_ont_01:coffee_machine_01_cf))
+Declaration(NamedIndividual(act_ont_01:coffee_machine_02_ncf))
+Declaration(NamedIndividual(act_ont_01:dish_washer_01))
+Declaration(NamedIndividual(act_ont_01:kettle_01_cf))
+Declaration(NamedIndividual(act_ont_01:kettle_02_ncf))
+Declaration(NamedIndividual(act_ont_01:mug_01_cf))
+Declaration(NamedIndividual(act_ont_01:mug_01_ncf))
+Declaration(NamedIndividual(act_ont_01:shaking_url))
+Declaration(NamedIndividual(act_ont_01:standing_01))
+Declaration(NamedIndividual(act_ont_01:stove_01_cf))
+Declaration(NamedIndividual(act_ont_01:tooth_brush_01))
+Declaration(NamedIndividual(act_ont_01:tooth_brush_short))
+Declaration(NamedIndividual(act_ont_01:tooth_brush_short_2))
+Declaration(NamedIndividual(act_ont_01:water_faucet_01_b))
+############################
+#   Object Properties
+############################
+
+# Object Property: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasEvent> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasEvent>)
+
+ObjectPropertyRange(act_ont_01:hasEvent act_ont_01:Event)
+
+
+############################
+#   Data Properties
+############################
+
+# Data Property: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasEndTime> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasEndTime>)
+
+SubDataPropertyOf(act_ont_01:hasEndTime owl:topDataProperty)
+DataPropertyDomain(act_ont_01:hasEndTime act_ont_01:Event)
+DataPropertyRange(act_ont_01:hasEndTime xsd:integer)
+
+# Data Property: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasStartTime> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#hasStartTime>)
+
+SubDataPropertyOf(act_ont_01:hasStartTime owl:topDataProperty)
+DataPropertyDomain(act_ont_01:hasStartTime act_ont_01:Event)
+DataPropertyRange(act_ont_01:hasStartTime xsd:integer)
+
+
+
+############################
+#   Classes
+############################
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BackPack> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BackPack>)
+
+SubClassOf(act_ont_01:BackPack act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Bathroom> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Bathroom>)
+
+SubClassOf(act_ont_01:Bathroom act_ont_01:Location)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Bedroom> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Bedroom>)
+
+SubClassOf(act_ont_01:Bedroom act_ont_01:Location)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BoilingWater> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BoilingWater>)
+
+SubClassOf(act_ont_01:BoilingWater act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BrushingTeeth> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#BrushingTeeth>)
+
+SubClassOf(act_ont_01:BrushingTeeth act_ont_01:Activity)
+DisjointClasses(act_ont_01:BrushingTeeth act_ont_01:MakingCoffee)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Cabinet> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Cabinet>)
+
+SubClassOf(act_ont_01:Cabinet act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#CoffeeBeans> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#CoffeeBeans>)
+
+SubClassOf(act_ont_01:CoffeeBeans act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#CoffeeMachine> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#CoffeeMachine>)
+
+SubClassOf(act_ont_01:CoffeeMachine act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ComputerDesk> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ComputerDesk>)
+
+SubClassOf(act_ont_01:ComputerDesk act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#DishRack> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#DishRack>)
+
+SubClassOf(act_ont_01:DishRack act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#DishWasher> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#DishWasher>)
+
+SubClassOf(act_ont_01:DishWasher act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#FoodContainer> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#FoodContainer>)
+
+SubClassOf(act_ont_01:FoodContainer act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#HandGesture> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#HandGesture>)
+
+SubClassOf(act_ont_01:HandGesture act_ont_01:Event)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Kettle> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Kettle>)
+
+SubClassOf(act_ont_01:Kettle act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Kitchen> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Kitchen>)
+
+SubClassOf(act_ont_01:Kitchen act_ont_01:Location)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#LivingRoom> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#LivingRoom>)
+
+SubClassOf(act_ont_01:LivingRoom act_ont_01:Location)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Lying> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Lying>)
+
+SubClassOf(act_ont_01:Lying act_ont_01:Posture)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#MakingCoffee> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#MakingCoffee>)
+
+SubClassOf(act_ont_01:MakingCoffee act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Mug> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Mug>)
+
+SubClassOf(act_ont_01:Mug act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#NotMakingCoffee> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#NotMakingCoffee>)
+
+SubClassOf(act_ont_01:NotMakingCoffee act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Objects> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Objects>)
+
+SubClassOf(act_ont_01:Objects act_ont_01:Event)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Posture> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Posture>)
+
+SubClassOf(act_ont_01:Posture act_ont_01:Event)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Refrigerator> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Refrigerator>)
+
+SubClassOf(act_ont_01:Refrigerator act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ShakingFRL> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ShakingFRL>)
+
+SubClassOf(act_ont_01:ShakingFRL act_ont_01:HandGesture)
+DisjointClasses(act_ont_01:ShakingFRL act_ont_01:ShakingURL)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ShakingURL> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ShakingURL>)
+
+SubClassOf(act_ont_01:ShakingURL act_ont_01:HandGesture)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#SingleEventActivity> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#SingleEventActivity>)
+
+SubClassOf(act_ont_01:SingleEventActivity act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Sitting> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Sitting>)
+
+SubClassOf(act_ont_01:Sitting act_ont_01:Posture)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Standing> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Standing>)
+
+SubClassOf(act_ont_01:Standing act_ont_01:Posture)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Stove> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#Stove>)
+
+SubClassOf(act_ont_01:Stove act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ToothBrush> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#ToothBrush>)
+
+SubClassOf(act_ont_01:ToothBrush act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#WaterBottle> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#WaterBottle>)
+
+SubClassOf(act_ont_01:WaterBottle act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#WaterFaucet> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#WaterFaucet>)
+
+SubClassOf(act_ont_01:WaterFaucet act_ont_01:Objects)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity>)
+
+SubClassOf(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity> act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_01>)
+
+SubClassOf(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_01> act_ont_01:Activity)
+
+# Class: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_02> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_02>)
+
+SubClassOf(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#New activity_02> act_ont_01:Activity)
+
+
+############################
+#   Named Individuals
+############################
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_01>)
+
+ClassAssertion(act_ont_01:Activity act_ont_01:activity_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:back_pack_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:cabinet_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:coffee_bean_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:dish_washer_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:kettle_01_cf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:shaking_url)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:tooth_brush_01)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_01 act_ont_01:tooth_brush_short_2)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_02_b> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_02_b>)
+
+ClassAssertion(act_ont_01:Activity act_ont_01:activity_02_b)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_02_b act_ont_01:kettle_01_cf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_02_b act_ont_01:stove_01_cf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_02_b act_ont_01:water_faucet_01_b)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_03_cf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_03_cf>)
+
+ClassAssertion(act_ont_01:Activity act_ont_01:activity_03_cf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_03_cf act_ont_01:coffee_machine_01_cf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_03_cf act_ont_01:mug_01_cf)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_04_ncf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_04_ncf>)
+
+ClassAssertion(act_ont_01:Activity act_ont_01:activity_04_ncf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_04_ncf act_ont_01:coffee_machine_02_ncf)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_04_ncf act_ont_01:mug_01_ncf)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_05_not_brushing_teeth> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#activity_05_not_brushing_teeth>)
+
+ClassAssertion(act_ont_01:Activity act_ont_01:activity_05_not_brushing_teeth)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_05_not_brushing_teeth act_ont_01:shaking_url)
+ObjectPropertyAssertion(act_ont_01:hasEvent act_ont_01:activity_05_not_brushing_teeth act_ont_01:tooth_brush_short)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#back_pack_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#back_pack_01>)
+
+ClassAssertion(act_ont_01:BackPack act_ont_01:back_pack_01)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:back_pack_01 "79"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:back_pack_01 "80"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#bathroom_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#bathroom_01>)
+
+ClassAssertion(act_ont_01:Bathroom act_ont_01:bathroom_01)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#cabinet_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#cabinet_01>)
+
+ClassAssertion(act_ont_01:Cabinet act_ont_01:cabinet_01)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:cabinet_01 "84"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:cabinet_01 "83"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_bean_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_bean_01>)
+
+ClassAssertion(act_ont_01:CoffeeBeans act_ont_01:coffee_bean_01)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:coffee_bean_01 "86"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:coffee_bean_01 "85"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_machine_01_cf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_machine_01_cf>)
+
+ClassAssertion(act_ont_01:CoffeeMachine act_ont_01:coffee_machine_01_cf)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:coffee_machine_01_cf "41"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:coffee_machine_01_cf "39"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_machine_02_ncf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#coffee_machine_02_ncf>)
+
+ClassAssertion(act_ont_01:CoffeeMachine act_ont_01:coffee_machine_02_ncf)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#dish_washer_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#dish_washer_01>)
+
+ClassAssertion(act_ont_01:DishWasher act_ont_01:dish_washer_01)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:dish_washer_01 "93"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:dish_washer_01 "89"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#kettle_01_cf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#kettle_01_cf>)
+
+ClassAssertion(act_ont_01:Kettle act_ont_01:kettle_01_cf)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:kettle_01_cf "23"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:kettle_01_cf "17"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#kettle_02_ncf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#kettle_02_ncf>)
+
+ClassAssertion(act_ont_01:Kettle act_ont_01:kettle_02_ncf)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#mug_01_cf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#mug_01_cf>)
+
+ClassAssertion(act_ont_01:Mug act_ont_01:mug_01_cf)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:mug_01_cf "35"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:mug_01_cf "2"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#mug_01_ncf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#mug_01_ncf>)
+
+ClassAssertion(act_ont_01:Mug act_ont_01:mug_01_ncf)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#shaking_url> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#shaking_url>)
+
+ClassAssertion(act_ont_01:ShakingURL act_ont_01:shaking_url)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:shaking_url "3"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:shaking_url "0"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#standing_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#standing_01>)
+
+ClassAssertion(act_ont_01:Standing act_ont_01:standing_01)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#stove_01_cf> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#stove_01_cf>)
+
+ClassAssertion(act_ont_01:Stove act_ont_01:stove_01_cf)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:stove_01_cf "15"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:stove_01_cf "10"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_01> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_01>)
+
+ClassAssertion(act_ont_01:ToothBrush act_ont_01:tooth_brush_01)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:tooth_brush_01 "78"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:tooth_brush_01 "24"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_short> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_short>)
+
+ClassAssertion(act_ont_01:ToothBrush act_ont_01:tooth_brush_short)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:tooth_brush_short "34"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:tooth_brush_short "5"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_short_2> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#tooth_brush_short_2>)
+
+ClassAssertion(act_ont_01:ToothBrush act_ont_01:tooth_brush_short_2)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:tooth_brush_short_2 "8"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:tooth_brush_short_2 "5"^^xsd:int)
+
+# Individual: <http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#water_faucet_01_b> (<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01#water_faucet_01_b>)
+
+ClassAssertion(act_ont_01:WaterFaucet act_ont_01:water_faucet_01_b)
+DataPropertyAssertion(act_ont_01:hasEndTime act_ont_01:water_faucet_01_b "11"^^xsd:int)
+DataPropertyAssertion(act_ont_01:hasStartTime act_ont_01:water_faucet_01_b "5"^^xsd:int)
+
+
+DisjointClasses(act_ont_01:BackPack act_ont_01:Cabinet act_ont_01:CoffeeBeans act_ont_01:CoffeeMachine act_ont_01:ComputerDesk act_ont_01:DishRack act_ont_01:DishWasher act_ont_01:FoodContainer act_ont_01:Mug act_ont_01:Refrigerator act_ont_01:WaterBottle)
+DisjointClasses(act_ont_01:Bathroom act_ont_01:Bedroom act_ont_01:Kitchen act_ont_01:LivingRoom)
+DisjointClasses(act_ont_01:HandGesture act_ont_01:Objects act_ont_01:Posture)
+DisjointClasses(act_ont_01:Lying act_ont_01:Sitting act_ont_01:Standing)
+DLSafeRule(Body(ClassAtom(act_ont_01:Activity Variable(<urn:swrl:var#a>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e_ket>)) ClassAtom(act_ont_01:Kettle Variable(<urn:swrl:var#e_ket>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e_wat_fc>)) ClassAtom(act_ont_01:WaterFaucet Variable(<urn:swrl:var#e_wat_fc>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e_st>)) ClassAtom(act_ont_01:Stove Variable(<urn:swrl:var#e_st>)))Head(ClassAtom(act_ont_01:BoilingWater Variable(<urn:swrl:var#a>))))
+DLSafeRule(Body(ClassAtom(act_ont_01:Activity Variable(<urn:swrl:var#a>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e_sh>)) ClassAtom(act_ont_01:ShakingURL Variable(<urn:swrl:var#e_sh>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e>)) ClassAtom(act_ont_01:ToothBrush Variable(<urn:swrl:var#e>)) DataPropertyAtom(act_ont_01:hasStartTime Variable(<urn:swrl:var#e>) Variable(<urn:swrl:var#t1>)) DataPropertyAtom(act_ont_01:hasEndTime Variable(<urn:swrl:var#e>) Variable(<urn:swrl:var#t2>)) BuiltInAtom(swrlb:subtract Variable(<urn:swrl:var#duration>) Variable(<urn:swrl:var#t2>) Variable(<urn:swrl:var#t1>)) BuiltInAtom(swrlb:lessThan Variable(<urn:swrl:var#duration>) "1000"^^xsd:integer) BuiltInAtom(swrlb:greaterThan Variable(<urn:swrl:var#duration>) "50"^^xsd:integer))Head(ClassAtom(act_ont_01:BrushingTeeth Variable(<urn:swrl:var#a>))))
+DLSafeRule(Body(ClassAtom(act_ont_01:Activity Variable(<urn:swrl:var#a>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e_sh>)) ClassAtom(act_ont_01:ShakingURL Variable(<urn:swrl:var#e_sh>)) ObjectPropertyAtom(act_ont_01:hasEvent Variable(<urn:swrl:var#a>) Variable(<urn:swrl:var#e>)) ClassAtom(act_ont_01:ToothBrush Variable(<urn:swrl:var#e>)) DataPropertyAtom(act_ont_01:hasStartTime Variable(<urn:swrl:var#e>) Variable(<urn:swrl:var#t1>)) DataPropertyAtom(act_ont_01:hasEndTime Variable(<urn:swrl:var#e>) Variable(<urn:swrl:var#t2>)) BuiltInAtom(swrlb:subtract Variable(<urn:swrl:var#duration>) Variable(<urn:swrl:var#t2>) Variable(<urn:swrl:var#t1>)) BuiltInAtom(swrlb:greaterThan Variable(<urn:swrl:var#duration>) "50"^^xsd:integer) BuiltInAtom(swrlb:lessThan Variable(<urn:swrl:var#duration>) "1000"^^xsd:integer))Head(ClassAtom(act_ont_01:SingleEventActivity Variable(<urn:swrl:var#a>))))
+)
