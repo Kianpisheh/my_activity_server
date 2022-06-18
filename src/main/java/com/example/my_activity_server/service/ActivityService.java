@@ -46,6 +46,22 @@ public class ActivityService {
         return ontology;
     }
 
+    public void setAndSaveOntology(OWLOntology ontology_) {
+        ontology = ontology_;
+        IRI versionIRI = IRI.create(String.valueOf(version));
+        SetOntologyID change = new SetOntologyID(ontology,
+                new OWLOntologyID(ontology.getOntologyID().getOntologyIRI(), Optional.of(versionIRI)));
+        version += 1;
+        ontology.getOWLOntologyManager().applyChange(change);
+        // save the ontology
+        try {
+            File fileout = new File("./act_ont_015.owl");
+            manager.saveOntology(ontology, new FunctionalSyntaxDocumentFormat(), new FileOutputStream(fileout));
+        } catch (OWLOntologyStorageException | FileNotFoundException | UnknownOWLOntologyException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public OWLOntologyManager getManager() {
         return manager;
     }

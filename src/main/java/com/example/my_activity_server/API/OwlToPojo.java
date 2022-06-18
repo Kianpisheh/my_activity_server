@@ -82,6 +82,8 @@ public class OwlToPojo {
             if (atom instanceof SWRLBuiltInAtom) {
                 IRI atomIRI = (IRI) atom.getPredicate();
                 operator = atomIRI.getShortForm();
+            } else {
+                continue;
             }
             Map<String, Object> constraint = new HashMap<>();
             if (operator.equals("greaterThan") || operator.equals("lessThan")) {

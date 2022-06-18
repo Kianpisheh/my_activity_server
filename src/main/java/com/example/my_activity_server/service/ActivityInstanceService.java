@@ -6,19 +6,15 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.example.my_activity_server.ActivityInstanceManager;
-import com.example.my_activity_server.ActivityList;
 import com.example.my_activity_server.Predicate;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.model.EventInstance;
 import com.google.gson.Gson;
 
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLIndividual;
-import org.semanticweb.owlapi.model.OWLIndividualAxiom;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -75,27 +71,38 @@ public class ActivityInstanceService {
         // activityInstances.add(new ActivityInstance(instanceName, "", events));
         // });
 
-        File file2 = new File("data.json");
+        File file = new File("./data");
 
         Gson gson = new Gson();
-        Map<String, Object> object = null;
-        try {
-            object = (Map<String, Object>) gson.fromJson(new FileReader("./data.json"),
-                    Object.class);
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+        String[] fileDirs = file.list();
+        for (String dir : fileDirs) {
+            if (!dir.endsWith(".json")) {
+                continue;
+            }
+
+            Map<String, Object> object = null;
+            try {
+                object = (Map<String, Object>) gson.fromJson(new FileReader("./data/" + dir),
+                        Object.class);
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+
+            String actName = (String) object.get("name");
+            List<EventInstance> eventInstances = new ArrayList<>();
+            List<Map<String, Object>> evs = (List<Map<String, Object>>) object.get("events");
+            for (Map<String, Object> ev : evs) {
+                String evType = (String) ev.get("type");
+                double t1 = (double) ev.get("start_time");
+                double t2 = (double) ev.get("end_time");
+                eventInstances.add(new EventInstance("", evType, t1, t2));
+            }
+            activityInstances.add(new ActivityInstance(actName, "", eventInstances));
+
         }
 
-        String actName = (String) object.get("name");
-        List<EventInstance> eventInstances = new ArrayList<>();
-        List<Map<String, Object>> evs = (List<Map<String, Object>>) object.get("events");
-        for (Map<String, Object> ev : evs) {
-            String evType = (String) ev.get("type");
-            double t1 = (double) ev.get("start_time");
-            double t2 = (double) ev.get("end_time");
-            eventInstances.add(new EventInstance("", evType, t1, t2));
-        }
-        activityInstances.add(new ActivityInstance(actName, "", eventInstances));
+        ontology = ActivityInstanceManager.addActivityInstances(activityInstances, manager, ontology, pm);
+        activityService.setAndSaveOntology(ontology);
 
         return activityInstances;
 

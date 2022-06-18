@@ -1,7 +1,9 @@
 package com.example.my_activity_server.API;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.example.my_activity_server.Predicate;
 
@@ -22,22 +24,42 @@ public class PojoToOWL {
             }
         }
 
-        // add events predicates
         List<String> events2 = (List<String>) events;
+        List<Map<String, Object>> constraints = (List<Map<String, Object>>) activity.get("constraints");
+
+        // add the extra event of "same interaction time distance" axiom (hasEvent for
+        // that extra event)
+        for (int i = 0; i < constraints.size(); i++) {
+            List<String> consEvents = (List<String>) constraints.get(i).get("events");
+            if (constraints.get(i).get("type").equals("time_distance")) {
+                if (consEvents.get(0).equals(consEvents.get(1))) {
+                    events2.add(consEvents.get(0));
+                }
+            }
+        }
+
+        // add events predicates
         for (int i = 0; i < events2.size(); i++) {
             bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_EVENT, i, events2.get(i), i);
         }
         // add constraints predicates
-        List<Map<String, Object>> constraints = (List<Map<String, Object>>) activity.get("constraints");
         for (int i = 0; i < constraints.size(); i++) {
             List<String> constraintEvents = (List<String>) constraints.get(i).get("events");
             String event1 = constraintEvents.get(0);
             String event2 = event1;
-            if (constraintEvents.size() == 2) {
+            if (constraints.get(i).get("type").equals("time_distance")) {
                 event2 = constraintEvents.get(1);
             }
-            String evVar1 = retrieveEventVar(event1, bodyString);
-            String evVar2 = retrieveEventVar(event2, bodyString);
+
+            int idx1 = 0;
+            int idx2 = 0;
+            if (event1.equals(event2)) {
+                idx2 = 1;
+            }
+
+            String evVar1 = retrieveEventVar(event1, bodyString, idx1);
+            String evVar2 = retrieveEventVar(event2, bodyString, idx2);
+
             bodyString += String.format("^hasStartTime(%s,t1_%s)^hasEndTime(%s,t2_%s)", evVar2, evVar2, evVar1, evVar1);
 
             // add builtitn operator
@@ -62,9 +84,10 @@ public class PojoToOWL {
         return bodyString;
     }
 
-    private static String retrieveEventVar(String event, String bodyString) {
+    private static String retrieveEventVar(String event, String bodyString, int idx) {
         String[] ss = bodyString.split(event + "[(]"); // retireve the event var name
-        String eventVar = ss[1].substring(0, 3); // (e.g., e_0)
+        String eventVar = ss[1 + idx].substring(0, 3); // (e.g., e_0)
         return eventVar;
     }
+
 }
