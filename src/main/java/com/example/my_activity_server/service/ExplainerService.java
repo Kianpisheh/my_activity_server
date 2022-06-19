@@ -18,7 +18,10 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyAlreadyExistsException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -26,7 +29,9 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import openllet.owlapi.OpenlletReasoner;
@@ -41,30 +46,23 @@ public class ExplainerService {
     PrefixManager pm = null;
     String ontIRI = "";
 
+    @Autowired
+    private ActivityService activityService;
+
     public Map<String, Object> why(Map<String, String> query) {
 
-        PelletExplanation.setup();
-
         // setup and load the ontolgy
-        File file = new File("act_ont_015.owl");
-        try {
-            ontology = manager.loadOntologyFromOntologyDocument(file);
-        } catch (OWLOntologyAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (OWLOntologyCreationException ee) {
-            ee.printStackTrace();
-            return null;
+        ontology = activityService.getOntology();
+        manager = activityService.getManager();
+        pm = activityService.getPrefixManager();
+        if (ontology == null) {
+            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup("act_ont_015.owl", manager);
+            ontology = (OWLOntology) ontologyPm.get("ontology");
+            pm = (PrefixManager) ontologyPm.get("pm");
         }
 
-        try {
-            ontIRI = ontology.getOntologyID().getOntologyIRI().orElseThrow(Exception::new).toString();
-        } catch (OWLOntologyAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-        pm = new DefaultPrefixManager(ontIRI + "#");
-
+        // reasoner setup
+        PelletExplanation.setup();
         final OpenlletReasoner reasoner = OpenlletReasonerFactory.getInstance().createReasoner(ontology);
         final PelletExplanation explainer = new PelletExplanation(reasoner);
 
@@ -74,10 +72,10 @@ public class ExplainerService {
                 .getOWLNamedIndividual(query.get("instance"), pm);
 
         // let's find the satisfied swrl rule
-        Set<OWLAxiom> axioms = explainer.getInstanceExplanation(ind, targetActivityClass);
+        Set<OWLAxiom> satisfiedAxioms = explainer.getInstanceExplanation(ind, targetActivityClass);
 
         SWRLRule rule = null;
-        for (OWLAxiom axiom : axioms) {
+        for (OWLAxiom axiom : satisfiedAxioms) {
             if (axiom instanceof SWRLRule) {
                 rule = (SWRLRule) axiom;
             }
@@ -100,18 +98,45 @@ public class ExplainerService {
 
         // find event individuals (axioms) that are responsible for the activity
         // entailment
-        List<String> eventIndividuals = new ArrayList<>();
-        for (OWLAxiom axiom : axioms) {
+        List<String> entailedEventIndividuals = new ArrayList<>();
+        for (OWLAxiom axiom : satisfiedAxioms) {
             if (axiom instanceof OWLClassAssertionAxiom) {
                 OWLClassAssertionAxiom axiom2 = (OWLClassAssertionAxiom) axiom;
                 String eventName = axiom2.getClassExpression().asOWLClass().getIRI().getShortForm();
                 if (entailedEvents.contains(eventName)) {
                     String eventIndividualName = axiom2.getIndividual().asOWLNamedIndividual().getIRI().getShortForm();
-                    eventIndividuals.add(eventIndividualName);
+                    entailedEventIndividuals.add(eventIndividualName);
                 }
             }
         }
-        entailedPropositions.put("individuals", eventIndividuals);
+
+        // find start and end times of entailed individual events
+        List<Double> startTimes = new ArrayList<>();
+        List<Double> endTimes = new ArrayList<>();
+        for (String entailedIndividual : entailedEventIndividuals) {
+            for (OWLAxiom axiom : ontology.getAxioms()) {
+                if (axiom instanceof OWLDataPropertyAssertionAxiom) {
+                    OWLDataPropertyAssertionAxiom axiom2 = (OWLDataPropertyAssertionAxiom) axiom;
+                    String propName = axiom2.getProperty().asOWLDataProperty().getIRI().getShortForm();
+                    if (propName.equals(Predicate.HAS_START_TIME)) {
+                        String eventInstanceName = axiom2.getSubject().asOWLNamedIndividual().getIRI().getShortForm();
+                        if (entailedIndividual.equals(eventInstanceName)) {
+                            startTimes.add(axiom2.getObject().asLiteral().get().parseDouble());
+                        }
+                    } else if (propName.equals(Predicate.HAS_END_TIME)) {
+                        String eventInstanceName = axiom2.getSubject().asOWLNamedIndividual().getIRI().getShortForm();
+                        if (entailedIndividual.equals(eventInstanceName)) {
+                            endTimes.add(axiom2.getObject().asLiteral().get().parseDouble());
+                        }
+                    }
+                }
+            }
+        }
+
+        entailedPropositions.put("individuals", entailedEventIndividuals);
+        entailedPropositions.put("startTimes", startTimes);
+        entailedPropositions.put("endTimes", endTimes);
+        entailedPropositions.put("type", "why");
 
         return entailedPropositions;
     }
@@ -119,32 +144,21 @@ public class ExplainerService {
     public Map<String, Object> whyNot(Map<String, String> query) {
 
         PelletExplanation.setup();
-
         SWRLRule rule = null;
         List<String> unstatisfiedEvents = new ArrayList<>();
         List<ActionEventConstraintPojo> unstatisfiedConstraint = new ArrayList<>();
 
         // setup and load the ontolgy
-        File file = new File("act_ont_015.owl");
-        try {
-            ontology = manager.loadOntologyFromOntologyDocument(file);
-        } catch (OWLOntologyAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (OWLOntologyCreationException ee) {
-            ee.printStackTrace();
-            return null;
+        ontology = activityService.getOntology();
+        manager = activityService.getManager();
+        pm = activityService.getPrefixManager();
+        if (ontology == null) {
+            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup("act_ont_015.owl", manager);
+            ontology = (OWLOntology) ontologyPm.get("ontology");
+            pm = (PrefixManager) ontologyPm.get("pm");
         }
 
-        try {
-            ontIRI = ontology.getOntologyID().getOntologyIRI().orElseThrow(Exception::new).toString();
-        } catch (OWLOntologyAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-        pm = new DefaultPrefixManager(ontIRI + "#");
-
-        // get the OWLNamedIndividual
+        // get the queried individual
         OWLNamedIndividual activityIndividual = null;
         Set<OWLNamedIndividual> inds = ontology.getIndividualsInSignature();
         for (OWLNamedIndividual ind : inds) {
@@ -183,10 +197,12 @@ public class ExplainerService {
         Map<String, Object> unsatisfiedPropositions = new HashMap<>();
         unsatisfiedPropositions.putIfAbsent("events", unstatisfiedEvents);
         unsatisfiedPropositions.putIfAbsent("constraints", unstatisfiedConstraint);
+        unsatisfiedPropositions.putIfAbsent("type", "why_not");
 
         return unsatisfiedPropositions;
     }
 
+    // private methods
     private boolean isEventSatisfied(String eventType, OWLNamedIndividual ind, OWLOntologyManager manager,
             OWLOntology ontology,
             PrefixManager pm) {
@@ -209,6 +225,15 @@ public class ExplainerService {
 
         Set<OWLAxiom> satisfiedAtoms = explainer.getInstanceExplanation(ind,
                 singleEventClass);
+
+        // for (OWLAxiom axiom : satisfiedAtoms) {
+        // if (axiom instanceof OWLClassAssertionAxiom) {
+        // OWLClassAssertionAxiom axiom2 = (OWLClassAssertionAxiom) axiom;
+        // if (axiom2.getIndividual().equals(ind)) {
+
+        // }
+        // }
+        // }
 
         ontology.remove(rule);
         ontology.remove(subclassAxiom);
@@ -275,76 +300,76 @@ public class ExplainerService {
         return (satisfiedAtoms.size() > 0);
 
     }
-
-    // private static String explainWhy(int axiomType, List<ActionEvent>
-    // axiomEvents,
-    // EventConstraint axiomConstraint, String type) {
-
-    // if (axiomEvents.size() == 0)
-    // return "";
-
-    // String explanation = "You have interacted with ";
-    // switch (axiomType) {
-    // case Axiom.INTERACTION: {
-    // explanation = String.format(explanation, axiomEvents.get(0).getType());
-    // break;
-    // }
-    // case Axiom.INTERACTION_DURATION_LESS: {
-    // explanation = String.format(explanation + "%s less than %s seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomConstraint.getMaxValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_DURATION_MORE: {
-    // explanation = String.format(explanation + "%s more than %s seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomConstraint.getMinValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_DURATION_LESS_MORE: {
-    // explanation = String.format(explanation + "%s more than %s seconds and less
-    // than %s seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomConstraint.getMinValue(),
-    // axiomConstraint.getMaxValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_TIME_DISTANCE_LESS: {
-    // explanation = String.format(explanation + " both %s and %s in less than %s
-    // seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomEvents.get(1).getType(),
-    // axiomConstraint.getMaxValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_TIME_DISTANCE_MORE: {
-    // explanation = String.format(explanation + " both %s and %s in more than %s
-    // seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomEvents.get(1).getType(),
-    // axiomConstraint.getMinValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_TIME_DISTANCE_LESS_MORE: {
-    // explanation = String.format(
-    // explanation + " both %s and %s in more than %s seconds and less than %s
-    // seconds.",
-    // axiomEvents.get(0).getType(),
-    // axiomEvents.get(1).getType(),
-    // axiomConstraint.getMinValue(),
-    // axiomConstraint.getMaxValue());
-    // break;
-    // }
-    // case Axiom.INTERACTION_ORDER: {
-    // explanation = String.format(explanation + " with %s after using %s.",
-    // axiomEvents.get(0).getType(),
-    // axiomEvents.get(1).getType());
-    // break;
-    // }
-    // default:
-    // break;
-    // }
-
-    // return explanation;
-    // }
 }
+
+// private static String explainWhy(int axiomType, List<ActionEvent>
+// axiomEvents,
+// EventConstraint axiomConstraint, String type) {
+
+// if (axiomEvents.size() == 0)
+// return "";
+
+// String explanation = "You have interacted with ";
+// switch (axiomType) {
+// case Axiom.INTERACTION: {
+// explanation = String.format(explanation, axiomEvents.get(0).getType());
+// break;
+// }
+// case Axiom.INTERACTION_DURATION_LESS: {
+// explanation = String.format(explanation + "%s less than %s seconds.",
+// axiomEvents.get(0).getType(),
+// axiomConstraint.getMaxValue());
+// break;
+// }
+// case Axiom.INTERACTION_DURATION_MORE: {
+// explanation = String.format(explanation + "%s more than %s seconds.",
+// axiomEvents.get(0).getType(),
+// axiomConstraint.getMinValue());
+// break;
+// }
+// case Axiom.INTERACTION_DURATION_LESS_MORE: {
+// explanation = String.format(explanation + "%s more than %s seconds and less
+// than %s seconds.",
+// axiomEvents.get(0).getType(),
+// axiomConstraint.getMinValue(),
+// axiomConstraint.getMaxValue());
+// break;
+// }
+// case Axiom.INTERACTION_TIME_DISTANCE_LESS: {
+// explanation = String.format(explanation + " both %s and %s in less than %s
+// seconds.",
+// axiomEvents.get(0).getType(),
+// axiomEvents.get(1).getType(),
+// axiomConstraint.getMaxValue());
+// break;
+// }
+// case Axiom.INTERACTION_TIME_DISTANCE_MORE: {
+// explanation = String.format(explanation + " both %s and %s in more than %s
+// seconds.",
+// axiomEvents.get(0).getType(),
+// axiomEvents.get(1).getType(),
+// axiomConstraint.getMinValue());
+// break;
+// }
+// case Axiom.INTERACTION_TIME_DISTANCE_LESS_MORE: {
+// explanation = String.format(
+// explanation + " both %s and %s in more than %s seconds and less than %s
+// seconds.",
+// axiomEvents.get(0).getType(),
+// axiomEvents.get(1).getType(),
+// axiomConstraint.getMinValue(),
+// axiomConstraint.getMaxValue());
+// break;
+// }
+// case Axiom.INTERACTION_ORDER: {
+// explanation = String.format(explanation + " with %s after using %s.",
+// axiomEvents.get(0).getType(),
+// axiomEvents.get(1).getType());
+// break;
+// }
+// default:
+// break;
+// }
+
+// return explanation;
+// }

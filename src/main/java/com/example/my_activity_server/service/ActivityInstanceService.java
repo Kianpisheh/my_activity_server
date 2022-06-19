@@ -49,28 +49,6 @@ public class ActivityInstanceService {
 
         List<ActivityInstance> activityInstances = new ArrayList<>();
         List<OWLIndividual> individuals = new ArrayList<>();
-
-        // find activity instances in the ontology
-        // ontology.axioms().forEach(axiom -> {
-        // if (axiom instanceof OWLClassAssertionAxiom) {
-        // OWLClassAssertionAxiom individualAxiom = (OWLClassAssertionAxiom) axiom;
-        // String classStr =
-        // individualAxiom.getClassExpression().asOWLClass().getIRI().getShortForm();
-        // if (classStr.equals(ActivityList.ROOT_ACTIVITY)) {
-        // individuals.add(individualAxiom.getIndividual());
-        // }
-        // }
-        // });
-
-        // individuals.forEach(ind -> {
-        // Set<OWLIndividualAxiom> indAxioms = ontology.getAxioms(ind);
-        // String instanceName = ind.asOWLNamedIndividual().getIRI().getShortForm();
-        // List<EventInstance> events = ActivityInstanceManager.getEvents(indAxioms,
-        // ontology);
-
-        // activityInstances.add(new ActivityInstance(instanceName, "", events));
-        // });
-
         File file = new File("./data");
 
         Gson gson = new Gson();
@@ -95,7 +73,8 @@ public class ActivityInstanceService {
                 String evType = (String) ev.get("type");
                 double t1 = (double) ev.get("start_time");
                 double t2 = (double) ev.get("end_time");
-                eventInstances.add(new EventInstance("", evType, t1, t2));
+                String eventName = actName + "_" + evType + "_" + Double.toString(t2);
+                eventInstances.add(new EventInstance(eventName, evType, t1, t2));
             }
             activityInstances.add(new ActivityInstance(actName, "", eventInstances));
 
@@ -136,3 +115,25 @@ public class ActivityInstanceService {
     }
 
 }
+
+// Load the owl ontology
+// find activity instances in the ontology
+// ontology.axioms().forEach(axiom -> {
+// if (axiom instanceof OWLClassAssertionAxiom) {
+// OWLClassAssertionAxiom individualAxiom = (OWLClassAssertionAxiom) axiom;
+// String classStr =
+// individualAxiom.getClassExpression().asOWLClass().getIRI().getShortForm();
+// if (classStr.equals(ActivityList.ROOT_ACTIVITY)) {
+// individuals.add(individualAxiom.getIndividual());
+// }
+// }
+// });
+
+// individuals.forEach(ind -> {
+// Set<OWLIndividualAxiom> indAxioms = ontology.getAxioms(ind);
+// String instanceName = ind.asOWLNamedIndividual().getIRI().getShortForm();
+// List<EventInstance> events = ActivityInstanceManager.getEvents(indAxioms,
+// ontology);
+
+// activityInstances.add(new ActivityInstance(instanceName, "", events));
+// });

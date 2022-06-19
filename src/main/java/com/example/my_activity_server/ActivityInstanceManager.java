@@ -90,8 +90,7 @@ public class ActivityInstanceManager {
             ontology.add(activityClassAxiom);
             // create events, object properties, and data properties
             for (EventInstance event : instance.getEvents()) {
-                OWLNamedIndividual eventInd = df.getOWLNamedIndividual(
-                        instance.getName() + "_" + event.getType() + "_" + event.getEndTime(), pm);
+                OWLNamedIndividual eventInd = df.getOWLNamedIndividual(event.getName(), pm);
                 OWLDeclarationAxiom eventIndDecAxiom = df.getOWLDeclarationAxiom(eventInd);
                 ontology.add(eventIndDecAxiom);
                 // event class and subclass of Objects
@@ -110,10 +109,11 @@ public class ActivityInstanceManager {
                 OWLDataProperty dataPropertyStartTime = df.getOWLDataProperty(":" + Predicate.HAS_START_TIME, pm);
                 OWLDataProperty dataPropertyEndTime = df.getOWLDataProperty(":" + Predicate.HAS_END_TIME, pm);
                 OWLDataPropertyAssertionAxiom dataPropertyStartTimeAxiom = df
-                        .getOWLDataPropertyAssertionAxiom(dataPropertyStartTime, eventInd, (int) event.getStartTime());
+                        .getOWLDataPropertyAssertionAxiom(dataPropertyStartTime, eventInd,
+                                (double) event.getStartTime());
                 ontology.add(dataPropertyStartTimeAxiom);
                 OWLDataPropertyAssertionAxiom dataPropertyEndTimeAxiom = df
-                        .getOWLDataPropertyAssertionAxiom(dataPropertyEndTime, eventInd, (int) event.getEndTime());
+                        .getOWLDataPropertyAssertionAxiom(dataPropertyEndTime, eventInd, (double) event.getEndTime());
                 ontology.add(dataPropertyEndTimeAxiom);
             }
 
