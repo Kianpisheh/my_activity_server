@@ -229,12 +229,12 @@ public class OwlToPojo {
                 IRI iri = (IRI) atom.getPredicate();
                 if (iri.getShortForm().equals(operator)) {
                     List<SWRLArgument> vars = (List<SWRLArgument>) atom.getAllArguments();
-                    SWRLVariable var0 = (SWRLVariable) vars.get(0);
-                    SWRLVariable var1 = (SWRLVariable) vars.get(1);
+                    SWRLVariable var0 = (SWRLVariable) vars.get(1);
+                    SWRLVariable var1 = (SWRLVariable) vars.get(2);
                     if (var0.getIRI().getShortForm().equals(constraintDepVar)) {
-                        return 0;
-                    } else if (var1.getIRI().getShortForm().equals(constraintDepVar)) {
                         return 1;
+                    } else if (var1.getIRI().getShortForm().equals(constraintDepVar)) {
+                        return 2;
                     }
                 }
             }
