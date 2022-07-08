@@ -1,7 +1,9 @@
 package com.example.my_activity_server.service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -10,6 +12,8 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
+
+import com.example.my_activity_server.model.ActivityInstance;
 
 public class ServiceUtils {
 
@@ -50,4 +54,12 @@ public class ServiceUtils {
         OWLOntology ontology = (OWLOntology) output.get("ontology");
         return ontology;
     }
+
+    // finding the frequent rules
+    public List<String> getFrquentEventsets(List<ActivityInstance> instances, float minSup, float minConf) {
+        List<String> freqEvents = new ArrayList<>();
+
+        return freqEvents;
+    }
+
 }

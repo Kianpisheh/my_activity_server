@@ -1,0 +1,1 @@
+{"name": "PREPARING_COLD_MEAL_11", "type": "PREPARING_COLD_MEAL", "events": [{"name": "cutlery_drawer_200_11", "type": "cutlery_drawer", "start_time": 11.73, "end_time": 30.998}, {"name": "fridge_200_30", "type": "fridge", "start_time": 30.998, "end_time": 44.755}, {"name": "fridge_200_44", "type": "fridge", "start_time": 44.755, "end_time": 90.132}]}

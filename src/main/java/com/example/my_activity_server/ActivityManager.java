@@ -1,6 +1,8 @@
 package com.example.my_activity_server;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.model.SWRLRule;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 public class ActivityManager {
@@ -71,6 +74,20 @@ public class ActivityManager {
 
         });
 
+    }
+
+    public static List<OWLCLass> getActivityClasses(OWLOntology ontology, OWLOntologyManager manager) {
+        List<OWLCLass> activityClasses = new ArrayList<>();
+        ontology.axioms().forEach(axiom -> {
+            if (axiom instanceof SWRLRule) {
+                SWRLRule rule = (SWRLRule) axiom;
+                OWLClass activityClass = (OWLClass) rule.headList().get(0).getPredicate();
+                rule.headList().get(0).getPredicate();
+                activityClasses.add((OWLCLass) activityClass);
+            }
+        });
+
+        return activityClasses;
     }
 
 }

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.my_activity_server.ActivityInstanceManager;
+import com.example.my_activity_server.ActivityManager;
+import com.example.my_activity_server.OWLCLass;
 import com.example.my_activity_server.Predicate;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.model.EventInstance;
@@ -48,7 +50,6 @@ public class ActivityInstanceService {
         }
 
         List<ActivityInstance> activityInstances = new ArrayList<>();
-        List<OWLIndividual> individuals = new ArrayList<>();
         File file = new File("./data");
 
         Gson gson = new Gson();
@@ -67,6 +68,7 @@ public class ActivityInstanceService {
             }
 
             String actName = (String) object.get("name");
+            String actType = (String) object.get("type");
             List<EventInstance> eventInstances = new ArrayList<>();
             List<Map<String, Object>> evs = (List<Map<String, Object>>) object.get("events");
             for (Map<String, Object> ev : evs) {
@@ -76,7 +78,7 @@ public class ActivityInstanceService {
                 String eventName = actName + "_" + evType + "_" + Double.toString(t2);
                 eventInstances.add(new EventInstance(eventName, evType, t1, t2));
             }
-            activityInstances.add(new ActivityInstance(actName, "", eventInstances));
+            activityInstances.add(new ActivityInstance(actName, actType, eventInstances));
 
         }
 
@@ -95,6 +97,7 @@ public class ActivityInstanceService {
 
         List<List<String>> results = new ArrayList<>();
 
+        // per instance
         for (String instanceName : activityInstances) {
             OWLNamedIndividual ind = manager.getOWLDataFactory()
                     .getOWLNamedIndividual(instanceName, pm);
@@ -113,7 +116,6 @@ public class ActivityInstanceService {
 
         return results;
     }
-
 }
 
 // Load the owl ontology

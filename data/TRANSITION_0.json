@@ -1,0 +1,1 @@
+{"name": "TRANSITION_0", "type": "TRANSITION", "events": [{"name": "pantry_200_0", "type": "pantry", "start_time": 0.0, "end_time": 11.73}, {"name": "cutlery_drawer_200_11", "type": "cutlery_drawer", "start_time": 11.73, "end_time": 30.998}]}
