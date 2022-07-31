@@ -337,8 +337,8 @@ public class OwlToPojo {
         Map<String, String> timeToEventVars = getEventVarsFromTimeVars(timeVars, atoms);
         Map<String, String> timeToEvent = getEvents(timeToEventVars, atoms);
 
-        events.add(timeToEvent.get("t2"));
         events.add(timeToEvent.get("t1"));
+        events.add(timeToEvent.get("t2"));
         return events;
     }
 
