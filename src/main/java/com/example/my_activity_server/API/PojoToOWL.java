@@ -53,12 +53,15 @@ public class PojoToOWL {
 
             int idx1 = 0;
             int idx2 = 0;
-            if (event1.equals(event2)) {
+            if (event1.equals(event2)) { // same type interactions
                 idx2 = 1;
             }
 
             String evVar1 = retrieveEventVar(event1, bodyString, idx1);
-            String evVar2 = retrieveEventVar(event2, bodyString, idx2);
+            String evVar2 = evVar1;
+            if (constraints.get(i).get("type").equals("time_distance")) {
+                evVar2 = retrieveEventVar(event2, bodyString, idx2); // same type interactions
+            }
 
             bodyString += String.format("^hasStartTime(%s,t1_%s)^hasEndTime(%s,t2_%s)", evVar2, evVar2, evVar1, evVar1);
 

@@ -17,10 +17,14 @@ import com.example.my_activity_server.model.Activity;
 import com.example.my_activity_server.model.ActivityInstance;
 
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLPropertyAxiom;
 import org.semanticweb.owlapi.model.SWRLArgument;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLBuiltInAtom;
+import org.semanticweb.owlapi.model.SWRLClassAtom;
+import org.semanticweb.owlapi.model.SWRLDataPropertyAtom;
 import org.semanticweb.owlapi.model.SWRLLiteralArgument;
+import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom;
 import org.semanticweb.owlapi.model.SWRLVariable;
 
 import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
@@ -35,7 +39,10 @@ public class OwlToPojo {
     public static Activity getPojoActivity(OWLActivity owlActivity, int id) {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
         List<String> events = getEvents(atoms);
-        List<ActionEventConstraintPojo> constraints = getConstraints(atoms);
+
+        List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
+
+        // List<ActionEventConstraintPojo> constraints = getConstraints(atoms);
 
         return new Activity(id, owlActivity.getName(), events, constraints);
     }
@@ -66,6 +73,25 @@ public class OwlToPojo {
         });
 
         return events;
+    }
+
+    public static List<ActionEventConstraintPojo> getTimeConstraints(List<SWRLAtom> atoms) {
+        List<ActionEventConstraintPojo> constraintsPojo = new ArrayList<>();
+
+        // get constraint vars
+        List<String> constraintVars = getConstraintVar(atoms);
+        for (String constraintVar : constraintVars) {
+            Map<String, Integer> ths = getThresholds(constraintVar, atoms);
+            List<String> events = getConstraintEvents(constraintVar, atoms);
+            String constraintType = getConstraintType(constraintVar, atoms);
+            if (constraintType.equals("duration")) {
+                events.remove(1);
+            }
+            constraintsPojo.add(
+                    new ActionEventConstraintPojo(constraintType, events, ths.get("greaterThan"), ths.get("lessThan")));
+        }
+
+        return constraintsPojo;
     }
 
     public static List<ActionEventConstraintPojo> getConstraints(List<SWRLAtom> atoms) {
@@ -245,6 +271,154 @@ public class OwlToPojo {
     public static ActivityInstance getActivityInstances() {
 
         return null;
+    }
+
+    private static List<String> getConstraintVar(List<SWRLAtom> atoms) {
+        List<String> constraintVars = new ArrayList<>();
+        String operator = "";
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLBuiltInAtom) {
+                IRI atomIRI = (IRI) atom.getPredicate();
+                operator = atomIRI.getShortForm();
+                if (operator.equals("subtract")) {
+                    // get constraint var
+                    SWRLBuiltInAtomImpl subtractAtom = (SWRLBuiltInAtomImpl) atom;
+                    SWRLVariable arg0 = (SWRLVariable) subtractAtom.getArguments().get(0);
+                    String constraintVar = arg0.getIRI().getShortForm(); // (e.g., "duration")
+                    constraintVars.add(constraintVar);
+                }
+            }
+        }
+
+        return constraintVars;
+    }
+
+    private static Map<String, Integer> getThresholds(String constraintVar, List<SWRLAtom> atoms) {
+        Map<String, Integer> ths = new HashMap<>();
+        String operator = "";
+
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLBuiltInAtom) {
+                IRI atomIRI = (IRI) atom.getPredicate();
+                operator = atomIRI.getShortForm();
+                if (operator.equals("greaterThan") || operator.equals("lessThan")) {
+                    SWRLBuiltInAtomImpl limitAtom = (SWRLBuiltInAtomImpl) atom;
+                    SWRLVariable arg1 = (SWRLVariable) limitAtom.getArguments().get(0);
+                    if (arg1.getIRI().getShortForm().equals(constraintVar)) {
+                        SWRLLiteralArgument arg2 = (SWRLLiteralArgument) limitAtom.getArguments().get(1);
+                        int th = arg2.getLiteral().parseInteger();
+                        ths.put(operator, th);
+                    }
+                }
+            }
+        }
+
+        return ths;
+    }
+
+    private static String getConstraintType(String constraintVar, List<SWRLAtom> atoms) {
+        Map<String, String> timeVars = getEventTimeVars(constraintVar, atoms);
+        Map<String, String> timeToEventVars = getEventVarsFromTimeVars(timeVars, atoms);
+
+        List<String> eventVars = new ArrayList(timeToEventVars.values());
+
+        if (eventVars.get(0).equals(eventVars.get(1))) {
+            return "duration";
+        } else {
+            return "time_distance";
+
+        }
+    }
+
+    // [Pot, Fridge], t_Pot - t_Fridge
+    private static List<String> getConstraintEvents(String constraintVar, List<SWRLAtom> atoms) {
+        List<String> events = new ArrayList<>();
+        Map<String, String> timeVars = getEventTimeVars(constraintVar, atoms);
+        Map<String, String> timeToEventVars = getEventVarsFromTimeVars(timeVars, atoms);
+        Map<String, String> timeToEvent = getEvents(timeToEventVars, atoms);
+
+        events.add(timeToEvent.get("t2"));
+        events.add(timeToEvent.get("t1"));
+        return events;
+    }
+
+    // {t1: e1, t2: e2} --> {t1: Mug, t2: Kettle}
+    private static Map<String, String> getEvents(Map<String, String> timeToEventVars, List<SWRLAtom> atoms) {
+
+        Map<String, String> timeToEvent = new HashMap<>();
+
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLClassAtom) {
+                SWRLClassAtom classAtom = (SWRLClassAtom) atom;
+                SWRLVariable classArg = (SWRLVariable) classAtom.getArgument();
+                String classVar = classArg.getIRI().getShortForm();
+                if (timeToEventVars.containsValue(classVar)) {
+                    for (String timeVar : timeToEventVars.keySet()) {
+                        if (timeToEventVars.get(timeVar).equals(classVar)) {
+                            String event = classAtom.getPredicate().asOWLClass().getIRI().getShortForm();
+                            timeToEvent.put(timeVar, event);
+                        }
+                    }
+                }
+            }
+        }
+
+        return timeToEvent;
+    }
+
+    // {t1: e1, t2: e2}
+    private static Map<String, String> getEventVarsFromTimeVars(Map<String, String> times, List<SWRLAtom> atoms) {
+        Map<String, String> timeToEvent = new HashMap<>();
+
+        String dataProp = "";
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLDataPropertyAtom) {
+                SWRLDataPropertyAtom dataPropAtom = (SWRLDataPropertyAtom) atom;
+                dataProp = dataPropAtom.getPredicate().asOWLDataProperty().getIRI().getShortForm();
+                if (dataProp.equals(Predicate.HAS_END_TIME) || dataProp.equals(Predicate.HAS_START_TIME)) {
+                    SWRLVariable arg2 = (SWRLVariable) dataPropAtom.getSecondArgument();
+                    String timeVar = arg2.getIRI().getShortForm();
+                    if (times.containsValue(timeVar)) {
+                        for (String timeKey : times.keySet()) {
+                            if (times.get(timeKey).equals(timeVar)) {
+                                SWRLVariable arg1 = (SWRLVariable) dataPropAtom.getFirstArgument();
+                                String eventVar = arg1.getIRI().getShortForm();
+                                timeToEvent.put(timeKey, eventVar);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return timeToEvent;
+    }
+
+    private static Map<String, String> getEventTimeVars(String constraintVar, List<SWRLAtom> atoms) {
+
+        Map<String, String> times = new HashMap<>();
+
+        String operator = "";
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLBuiltInAtom) {
+                IRI atomIRI = (IRI) atom.getPredicate();
+                operator = atomIRI.getShortForm();
+                if (operator.equals("subtract")) {
+                    SWRLBuiltInAtomImpl subtractAtom = (SWRLBuiltInAtomImpl) atom;
+                    SWRLVariable arg0 = (SWRLVariable) subtractAtom.getArguments().get(0);
+                    if (arg0.getIRI().getShortForm().equals(constraintVar)) {
+                        SWRLVariable arg1 = (SWRLVariable) subtractAtom.getArguments().get(1);
+                        SWRLVariable arg2 = (SWRLVariable) subtractAtom.getArguments().get(2);
+                        times.put("t1", arg2.getIRI().getShortForm());
+                        times.put("t2", arg1.getIRI().getShortForm());
+                        return times;
+                    }
+                }
+            }
+        }
+
+        return times;
     }
 
 }

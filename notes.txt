@@ -1,0 +1,6 @@
+Find the candidate rules
+1. Find frequent and accurate rule items of size k (starting from k==1)
+   this step returns ruleSetK
+2. Filter the candidate rules based on the user's feedback
+   this step returns ruleSetUserK
+3. Repeat 1 and 2 to obtain rules with rule items of size k+1

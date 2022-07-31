@@ -3,7 +3,12 @@ package com.example.my_activity_server.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +20,9 @@ import com.example.my_activity_server.SWRLRuleFactory;
 import com.example.my_activity_server.API.OwlToPojo;
 import com.example.my_activity_server.API.PojoToOWL;
 import com.example.my_activity_server.model.Activity;
+import com.example.my_activity_server.model.ActivityRuleItem;
+import com.example.my_activity_server.model.RuleItem;
+import com.google.gson.Gson;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
@@ -104,6 +112,7 @@ public class ActivityService {
                 }
             }
         }
+
         return activities;
     }
 

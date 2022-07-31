@@ -5,7 +5,6 @@ import java.util.List;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.service.ActivityInstanceService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,6 @@ public class ActivityInstanceController {
 
     private final ActivityInstanceService activityInstanceService;
 
-    @Autowired
     public ActivityInstanceController(ActivityInstanceService activityInstanceService) {
         this.activityInstanceService = activityInstanceService;
     }
