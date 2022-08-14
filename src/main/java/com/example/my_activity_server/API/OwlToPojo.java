@@ -326,7 +326,6 @@ public class OwlToPojo {
             return "duration";
         } else {
             return "time_distance";
-
         }
     }
 

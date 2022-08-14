@@ -1,0 +1,1 @@
+{"name": "S4-ADL4_Early_morning", "type": "Early_morning", "events": [{"type": "Door1", "name": "Door1_13", "start_time": 13, "end_time": 17}, {"type": "Cup", "name": "Cup_23", "start_time": 23, "end_time": 26}, {"type": "Cup", "name": "Cup_26", "start_time": 26, "end_time": 27}]}
