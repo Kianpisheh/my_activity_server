@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,12 @@ import com.example.my_activity_server.model.Activity;
 import com.example.my_activity_server.model.ActivityRuleItem;
 import com.example.my_activity_server.model.RuleItem;
 import com.google.gson.Gson;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
+import org.bson.Document;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.model.IRI;
@@ -79,6 +86,20 @@ public class ActivityService {
     }
 
     public List<Activity> getActivities() {
+
+        String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
+        MongoClient mongoClient = MongoClients.create(uri);
+        MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
+        MongoCollection col = db.getCollection("activity_ontology");
+
+        String text = "";
+        try {
+            text = Files.readString(Paths.get("act_ont_015.owl"));
+            Document d = new Document("_id", "12").append("ontText", text);
+            col.insertOne(d);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         // setup and load the ontolgy
         if (ontology == null) {
