@@ -8,15 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.my_activity_server.ActivityInstanceManager;
-import com.example.my_activity_server.ActivityManager;
-import com.example.my_activity_server.OWLCLass;
 import com.example.my_activity_server.Predicate;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.model.EventInstance;
 import com.google.gson.Gson;
 
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -117,25 +114,3 @@ public class ActivityInstanceService {
         return results;
     }
 }
-
-// Load the owl ontology
-// find activity instances in the ontology
-// ontology.axioms().forEach(axiom -> {
-// if (axiom instanceof OWLClassAssertionAxiom) {
-// OWLClassAssertionAxiom individualAxiom = (OWLClassAssertionAxiom) axiom;
-// String classStr =
-// individualAxiom.getClassExpression().asOWLClass().getIRI().getShortForm();
-// if (classStr.equals(ActivityList.ROOT_ACTIVITY)) {
-// individuals.add(individualAxiom.getIndividual());
-// }
-// }
-// });
-
-// individuals.forEach(ind -> {
-// Set<OWLIndividualAxiom> indAxioms = ontology.getAxioms(ind);
-// String instanceName = ind.asOWLNamedIndividual().getIRI().getShortForm();
-// List<EventInstance> events = ActivityInstanceManager.getEvents(indAxioms,
-// ontology);
-
-// activityInstances.add(new ActivityInstance(instanceName, "", events));
-// });
