@@ -1,8 +1,10 @@
 package com.example.my_activity_server.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,14 @@ import com.example.my_activity_server.Predicate;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.model.EventInstance;
 import com.google.gson.Gson;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import static com.mongodb.client.model.Filters.eq;
 
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
@@ -41,7 +51,8 @@ public class ActivityInstanceService {
         manager = activityService.getManager();
         pm = activityService.getPrefixManager();
         if (ontology == null) {
-            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup("act_ont_015.owl", manager);
+            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager,
+                    activityService.getDBCollection());
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }
@@ -80,7 +91,23 @@ public class ActivityInstanceService {
         }
 
         ontology = ActivityInstanceManager.addActivityInstances(activityInstances, manager, ontology, pm);
-        activityService.setAndSaveOntology(ontology);
+        String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
+        MongoClient mongoClient = MongoClients.create(uri);
+        MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
+        MongoCollection col = db.getCollection("activity_ontology");
+
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document().append("ontText", ontText);
+            Bson query = eq("_id", "12");
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        // activityService.setAndSaveOntology(ontology);
 
         return activityInstances;
 

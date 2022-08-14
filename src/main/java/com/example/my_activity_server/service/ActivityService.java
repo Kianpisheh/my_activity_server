@@ -1,12 +1,16 @@
 package com.example.my_activity_server.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -29,6 +33,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.InsertOneResult;
+import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -47,6 +53,8 @@ import org.semanticweb.owlapi.model.SWRLRule;
 import org.semanticweb.owlapi.model.SetOntologyID;
 import org.semanticweb.owlapi.model.UnknownOWLOntologyException;
 import org.springframework.stereotype.Service;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 @Service
 public class ActivityService {
@@ -57,8 +65,17 @@ public class ActivityService {
     String ontIRI = "";
     int version = 0;
 
+    String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
+    MongoClient mongoClient = MongoClients.create(uri);
+    MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
+    MongoCollection col = db.getCollection("activity_ontology");
+
     public OWLOntology getOntology() {
         return ontology;
+    }
+
+    public MongoCollection getDBCollection() {
+        return col;
     }
 
     public void setAndSaveOntology(OWLOntology ontology_) {
@@ -70,9 +87,14 @@ public class ActivityService {
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
         try {
-            File fileout = new File("./act_ont_015.owl");
-            manager.saveOntology(ontology, new FunctionalSyntaxDocumentFormat(), new FileOutputStream(fileout));
-        } catch (OWLOntologyStorageException | FileNotFoundException | UnknownOWLOntologyException ex) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document().append("ontText", ontText);
+            Bson query = eq("_id", "12");
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -87,23 +109,9 @@ public class ActivityService {
 
     public List<Activity> getActivities() {
 
-        String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
-        MongoClient mongoClient = MongoClients.create(uri);
-        MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
-        MongoCollection col = db.getCollection("activity_ontology");
-
-        String text = "";
-        try {
-            text = Files.readString(Paths.get("act_ont_015.owl"));
-            Document d = new Document("_id", "12").append("ontText", text);
-            col.insertOne(d);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
         // setup and load the ontolgy
         if (ontology == null) {
-            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup("act_ont_015.owl", manager);
+            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager, col);
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }
@@ -185,9 +193,14 @@ public class ActivityService {
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
         try {
-            File fileout = new File("./act_ont_015.owl");
-            manager.saveOntology(ontology, new FunctionalSyntaxDocumentFormat(), new FileOutputStream(fileout));
-        } catch (OWLOntologyStorageException | FileNotFoundException | UnknownOWLOntologyException ex) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document().append("ontText", ontText);
+            Bson query = eq("_id", "12");
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -222,10 +235,20 @@ public class ActivityService {
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
+        String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
+        MongoClient mongoClient = MongoClients.create(uri);
+        MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
+        MongoCollection col = db.getCollection("activity_ontology");
+
         try {
-            File fileout = new File("./act_ont_015.owl");
-            manager.saveOntology(ontology, new FunctionalSyntaxDocumentFormat(), new FileOutputStream(fileout));
-        } catch (OWLOntologyStorageException | FileNotFoundException | UnknownOWLOntologyException ex) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document().append("ontText", ontText);
+            Bson query = eq("_id", "12");
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -273,9 +296,14 @@ public class ActivityService {
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
         try {
-            File fileout = new File("./act_ont_015.owl");
-            manager.saveOntology(ontology, new FunctionalSyntaxDocumentFormat(), new FileOutputStream(fileout));
-        } catch (OWLOntologyStorageException | FileNotFoundException | UnknownOWLOntologyException ex) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document().append("ontText", ontText);
+            Bson query = eq("_id", "12");
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

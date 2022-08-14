@@ -10,7 +10,7 @@ Prefix(act_ont_01:=<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01
 
 
 Ontology(<http://www.semanticweb.org/kian/ontologies/2022/0/act_ont_01>
-<408>
+<404>
 
 Declaration(Class(act_ont_01:Activity))
 Declaration(Class(act_ont_01:BackPack))
