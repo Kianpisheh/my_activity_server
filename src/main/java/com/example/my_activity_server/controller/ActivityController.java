@@ -40,7 +40,7 @@ class ActivityController {
     @PostMapping(value = "/remove")
     public void addActivity(@RequestBody Map<String, Object> data) {
         Map<String, Object> activity = (Map<String, Object>) data.get("activity");
-        String activityName = (String) activity.get("type");
+        String activityName = (String) activity.get("name");
         String dataset = (String) data.get("dataset");
         activityService.removeActivity(activityName.replace("=", ""), dataset);
     }

@@ -35,6 +35,7 @@ public class ServiceUtils {
         String ontIRI = "";
         PrefixManager pm = null;
 
+        // database set up
         try {
             Document d = (Document) col.find(new Document("_id", dataset)).first();
             String ontText = (String) d.get("ontText");
