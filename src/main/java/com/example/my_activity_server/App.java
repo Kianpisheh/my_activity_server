@@ -58,8 +58,5 @@ public class App {
 
         UserExplainer.explain(ind1, ActivityList.Brushing_TEETH, "why", manager, ontology,
                 pm);
-
-        System.out.println("hey");
-
     }
 }

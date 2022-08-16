@@ -8,7 +8,6 @@ import com.example.my_activity_server.service.ActivityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,18 +25,23 @@ class ActivityController {
         this.activityService = activityService;
     }
 
-    @GetMapping
-    public List<Activity> getActivity() {
-        return activityService.getActivities();
+    @PostMapping
+    public List<Activity> getActivity(@RequestBody Map<String, String> dataset) {
+        return activityService.getActivities(dataset.get("dataset"));
     }
 
     @PostMapping(value = "/update")
-    public void updateActivity(@RequestBody Map<String, Object> activity) {
-        activityService.updateActivity(activity);
+    public void updateActivity(@RequestBody Map<String, Object> data) {
+        Map<String, Object> activity = (Map<String, Object>) data.get("activity");
+        String dataset = (String) data.get("dataset");
+        activityService.updateActivity(activity, dataset);
     }
 
     @PostMapping(value = "/remove")
-    public void addActivity(@RequestBody String activity) {
-        activityService.removeActivity(activity.replace("=", ""));
+    public void addActivity(@RequestBody Map<String, Object> data) {
+        Map<String, Object> activity = (Map<String, Object>) data.get("activity");
+        String activityName = (String) activity.get("type");
+        String dataset = (String) data.get("dataset");
+        activityService.removeActivity(activityName.replace("=", ""), dataset);
     }
 }

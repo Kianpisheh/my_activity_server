@@ -1,6 +1,7 @@
 package com.example.my_activity_server.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.example.my_activity_server.model.ActivityInstance;
 import com.example.my_activity_server.service.ActivityInstanceService;
@@ -23,9 +24,9 @@ public class ActivityInstanceController {
         this.activityInstanceService = activityInstanceService;
     }
 
-    @GetMapping(value = "/instances")
-    public List<ActivityInstance> getInstances() {
-        return activityInstanceService.getActivityInstances();
+    @PostMapping(value = "/instances")
+    public List<ActivityInstance> getInstances(@RequestBody Map<String, String> dataset) {
+        return activityInstanceService.getActivityInstances(dataset);
     }
 
     @PostMapping(value = "/classify")

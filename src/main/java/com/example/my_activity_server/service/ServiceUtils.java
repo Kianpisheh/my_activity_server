@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import org.bson.Document;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -22,20 +23,20 @@ import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 import com.example.my_activity_server.model.ActivityInstance;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import org.bson.conversions.Bson;
+import static com.mongodb.client.model.Filters.eq;
 
 public class ServiceUtils {
 
-    public static Map<String, Object> ontologyAssetsSetup(OWLOntologyManager manager, MongoCollection col) {
+    public static Map<String, Object> ontologyAssetsSetup(OWLOntologyManager manager, MongoCollection col,
+            String dataset) {
         OWLOntology ontology = null;
         String ontIRI = "";
         PrefixManager pm = null;
 
         try {
-            Document d = (Document) col.find(new Document("_id", "12")).first();
+            Document d = (Document) col.find(new Document("_id", dataset)).first();
             String ontText = (String) d.get("ontText");
             InputStream stream = new ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
             ontology = manager.loadOntologyFromOntologyDocument(stream);
@@ -63,10 +64,18 @@ public class ServiceUtils {
 
     }
 
-    public static OWLOntology getOntology(MongoCollection col, OWLOntologyManager manager) {
-        Map<String, Object> output = ontologyAssetsSetup(manager, col);
-        OWLOntology ontology = (OWLOntology) output.get("ontology");
-        return ontology;
+    public static void saveOntology(OWLOntology ontology, String dataset, MongoCollection col) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ontology.saveOntology(ontology.getFormat(), outputStream);
+            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            Document newDoc = new Document("_id", dataset).append("ontText", ontText);
+            Bson query = eq("_id", dataset);
+            col.replaceOne(query, newDoc);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     // finding the frequent rules

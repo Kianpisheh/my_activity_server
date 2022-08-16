@@ -52,7 +52,6 @@ public class UserExplainer {
             EventConstraint axiomConstraint = Axiom.getAxiomConstraint(axiomAtoms, axiomEvents);
 
             String explanation = getExplanation(axiomType, axiomEvents, axiomConstraint, type);
-            System.out.println(explanation);
         } else if (type.equals("why not")) {
             List<ActionEvent> unstatisfiedEvents = new ArrayList<>();
             List<EventConstraint> unstatisfiedConstraint = new ArrayList<>();
@@ -84,7 +83,6 @@ public class UserExplainer {
             // TODO: unsatisfiedConstraints List vs type
             int axiomType = getAxiomType(rule.bodyList());
             String explanation = getExplanation(axiomType, unstatisfiedEvents, unstatisfiedConstraint.get(0), type);
-            System.out.println(explanation);
         }
     }
 

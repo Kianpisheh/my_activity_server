@@ -39,13 +39,9 @@ public class ActivityManager {
         Set<OWLClassExpression> expressions = new HashSet<OWLClassExpression>();
 
         // add the new activity to the activity set (activityClass -> Activity)
-        System.out.println(IRI.create(pm.toString()));
         OWLClass rootActivityClass = manager.getOWLDataFactory().getOWLClass(":Activity", pm);
 
         manager.addAxiom(ontology, df.getOWLSubClassOfAxiom(activityClass, rootActivityClass));
-        ontology.logicalAxioms().forEach(s -> {
-            System.out.println(s);
-        });
 
         axiomEntities.forEach((entitiy, entityValue) -> {
             OWLObjectProperty objectProperty = df.getOWLObjectProperty(":" + entitiy, pm);
@@ -58,10 +54,6 @@ public class ActivityManager {
 
         OWLAxiom axiom = df.getOWLEquivalentClassesAxiom(activityClass, activityExpression);
         manager.addAxiom(ontology, axiom);
-
-        ontology.logicalAxioms().forEach(s -> {
-            System.out.println(s);
-        });
         return ontology;
     }
 

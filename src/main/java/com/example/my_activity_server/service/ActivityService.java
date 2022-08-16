@@ -2,19 +2,9 @@ package com.example.my_activity_server.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,19 +16,14 @@ import com.example.my_activity_server.SWRLRuleFactory;
 import com.example.my_activity_server.API.OwlToPojo;
 import com.example.my_activity_server.API.PojoToOWL;
 import com.example.my_activity_server.model.Activity;
-import com.example.my_activity_server.model.ActivityRuleItem;
-import com.example.my_activity_server.model.RuleItem;
-import com.google.gson.Gson;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.InsertOneResult;
 import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -46,14 +31,11 @@ import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
 import org.semanticweb.owlapi.model.SetOntologyID;
-import org.semanticweb.owlapi.model.UnknownOWLOntologyException;
 import org.springframework.stereotype.Service;
-import org.bson.Document;
 import org.bson.conversions.Bson;
 
 @Service
@@ -74,11 +56,15 @@ public class ActivityService {
         return ontology;
     }
 
+    public MongoDatabase getDatabase() {
+        return db;
+    }
+
     public MongoCollection getDBCollection() {
         return col;
     }
 
-    public void setAndSaveOntology(OWLOntology ontology_) {
+    public void setAndSaveOntology(OWLOntology ontology_, MongoCollection col) {
         ontology = ontology_;
         IRI versionIRI = IRI.create(String.valueOf(version));
         SetOntologyID change = new SetOntologyID(ontology,
@@ -91,7 +77,7 @@ public class ActivityService {
             ontology.saveOntology(ontology.getFormat(), outputStream);
             String ontText = outputStream.toString(StandardCharsets.UTF_8);
             Document newDoc = new Document().append("ontText", ontText);
-            Bson query = eq("_id", "12");
+            Bson query = eq("name", "12");
             col.replaceOne(query, newDoc);
 
         } catch (Exception ex) {
@@ -107,11 +93,34 @@ public class ActivityService {
         return pm;
     }
 
-    public List<Activity> getActivities() {
+    public List<Activity> getActivities(String dataset) {
 
+        // File f = new File("act_ont_015.owl");
+        // try {
+        // ontology = manager.loadOntologyFromOntologyDocument(f);
+        // } catch (Exception ex) {
+        // ex.printStackTrace();
+        // }
+
+        // ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // try {
+        // ontology.saveOntology(ontology.getFormat(), outputStream);
+        // } catch (Exception ex) {
+        // ex.printStackTrace();
+        // }
+        // String ontText = outputStream.toString(StandardCharsets.UTF_8);
+        // Document newDoc = new Document("_id",
+        // "CASAS8").append("ontText", ontText);
+        // col.insertOne(newDoc);
+
+        if (ontology != null) {
+            manager.removeOntology(ontology);
+            ontology = null;
+        }
         // setup and load the ontolgy
         if (ontology == null) {
-            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager, col);
+            Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager, col,
+                    dataset);
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }
@@ -145,7 +154,7 @@ public class ActivityService {
         return activities;
     }
 
-    public void updateActivity(Map<String, Object> activity) {
+    public void updateActivity(Map<String, Object> activity, String dataset) {
         String activityName = ((String) activity.get("name"));
 
         // add the activity into the ontology
@@ -192,20 +201,10 @@ public class ActivityService {
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ontology.saveOntology(ontology.getFormat(), outputStream);
-            String ontText = outputStream.toString(StandardCharsets.UTF_8);
-            Document newDoc = new Document().append("ontText", ontText);
-            Bson query = eq("_id", "12");
-            col.replaceOne(query, newDoc);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        ServiceUtils.saveOntology(ontology, dataset, col);
     }
 
-    public void addActivity(Map<String, Object> activity) {
+    public void addActivity(Map<String, Object> activity, String dataset) {
 
         String activityName = ((String) activity.get("name"));
 
@@ -235,25 +234,10 @@ public class ActivityService {
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
-        String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
-        MongoClient mongoClient = MongoClients.create(uri);
-        MongoDatabase db = mongoClient.getDatabase("HAKEE-database");
-        MongoCollection col = db.getCollection("activity_ontology");
-
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ontology.saveOntology(ontology.getFormat(), outputStream);
-            String ontText = outputStream.toString(StandardCharsets.UTF_8);
-            Document newDoc = new Document().append("ontText", ontText);
-            Bson query = eq("_id", "12");
-            col.replaceOne(query, newDoc);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        ServiceUtils.saveOntology(ontology, dataset, col);
     }
 
-    public void removeActivity(String activity) {
+    public void removeActivity(String activity, String dataset) {
         // remove the corresponding axioms and rules
         OWLClass activityClass = manager.getOWLDataFactory().getOWLClass(":" + activity,
                 pm);
@@ -275,10 +259,6 @@ public class ActivityService {
         }
 
         ontology.axioms().forEach(axiom -> {
-            System.out.println(axiom.getClassesInSignature());
-        });
-
-        ontology.axioms().forEach(axiom -> {
             if (axiom instanceof SWRLRule) {
                 SWRLRule rule = (SWRLRule) axiom;
                 SWRLAtom act = rule.head().findFirst().get();
@@ -295,16 +275,6 @@ public class ActivityService {
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ontology.saveOntology(ontology.getFormat(), outputStream);
-            String ontText = outputStream.toString(StandardCharsets.UTF_8);
-            Document newDoc = new Document().append("ontText", ontText);
-            Bson query = eq("_id", "12");
-            col.replaceOne(query, newDoc);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        ServiceUtils.saveOntology(ontology, dataset, col);
     }
 }
