@@ -6,8 +6,4 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 
 public class NaturalLangExplainer {
 
-    public void getNatLangExplanations(Set<OWLAxiom> explanations) {
-        explanations.forEach(ex -> System.out.println(ex));
-    }
-
 }
