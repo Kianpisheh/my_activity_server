@@ -95,7 +95,8 @@ public class ActivityService {
 
     public List<Activity> getActivities(String dataset) {
 
-        // File f = new File("act_ont_015.owl");
+        // if (dataset.equals("CASAS8")) {
+        // File f = new File("CASAS8_ontology.owl");
         // try {
         // ontology = manager.loadOntologyFromOntologyDocument(f);
         // } catch (Exception ex) {
@@ -112,6 +113,7 @@ public class ActivityService {
         // Document newDoc = new Document("_id",
         // "CASAS8").append("ontText", ontText);
         // col.insertOne(newDoc);
+        // }
 
         if (ontology != null) {
             manager.removeOntology(ontology);

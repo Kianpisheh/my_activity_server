@@ -31,6 +31,7 @@ public class ServiceUtils {
 
     public static Map<String, Object> ontologyAssetsSetup(OWLOntologyManager manager, MongoCollection col,
             String dataset) {
+
         OWLOntology ontology = null;
         String ontIRI = "";
         PrefixManager pm = null;
@@ -40,6 +41,7 @@ public class ServiceUtils {
             Document d = (Document) col.find(new Document("_id", dataset)).first();
             String ontText = (String) d.get("ontText");
             InputStream stream = new ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
+            // manager.clearOntologies();
             ontology = manager.loadOntologyFromOntologyDocument(stream);
         } catch (OWLOntologyAlreadyExistsException e) {
             e.printStackTrace();
