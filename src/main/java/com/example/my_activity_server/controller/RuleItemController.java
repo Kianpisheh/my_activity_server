@@ -12,7 +12,7 @@ import com.example.my_activity_server.model.RuleItem;
 import com.example.my_activity_server.service.RuleItemService;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://timely-cajeta-af0a35.netlify.app/")
 @RequestMapping(path = "/ruleitems")
 public class RuleItemController {
     private final RuleItemService ruleItemService;

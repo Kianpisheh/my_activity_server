@@ -71,7 +71,8 @@ public class ServiceUtils {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ontology.saveOntology(ontology.getFormat(), outputStream);
-            String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            // String ontText = outputStream.toString(StandardCharsets.UTF_8);
+            String ontText = new String(outputStream.toByteArray(), "UTF-8");
             Document newDoc = new Document("_id", dataset).append("ontText", ontText);
             Bson query = eq("_id", dataset);
             col.replaceOne(query, newDoc);
