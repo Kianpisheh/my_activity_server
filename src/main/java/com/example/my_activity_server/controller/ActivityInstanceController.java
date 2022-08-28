@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "https://timely-cajeta-af0a35.netlify.app")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "/instance")
 public class ActivityInstanceController {
 

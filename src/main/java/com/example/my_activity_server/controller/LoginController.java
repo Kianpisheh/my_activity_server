@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.my_activity_server.service.LoginService;
 
 @RestController
-@CrossOrigin(origins = "https://timely-cajeta-af0a35.netlify.app")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "/pass")
 public class LoginController {
     private final LoginService loginService;

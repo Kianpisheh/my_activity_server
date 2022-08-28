@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "https://timely-cajeta-af0a35.netlify.app")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "/activity")
 class ActivityController {
 
@@ -27,21 +27,19 @@ class ActivityController {
 
     @PostMapping
     public List<Activity> getActivity(@RequestBody Map<String, String> dataset) {
-        return activityService.getActivities(dataset.get("dataset"));
+        return activityService.getActivities(dataset.get("dataset") + "-" + dataset.get("user"));
     }
 
     @PostMapping(value = "/update")
     public void updateActivity(@RequestBody Map<String, Object> data) {
         Map<String, Object> activity = (Map<String, Object>) data.get("activity");
-        String dataset = (String) data.get("dataset");
-        activityService.updateActivity(activity, dataset);
+        activityService.updateActivity(activity, data.get("dataset") + "-" + data.get("user"));
     }
 
     @PostMapping(value = "/remove")
     public void addActivity(@RequestBody Map<String, Object> data) {
         Map<String, Object> activity = (Map<String, Object>) data.get("activity");
         String activityName = (String) activity.get("name");
-        String dataset = (String) data.get("dataset");
-        activityService.removeActivity(activityName.replace("=", ""), dataset);
+        activityService.removeActivity(activityName.replace("=", ""), data.get("dataset") + "-" + data.get("user"));
     }
 }

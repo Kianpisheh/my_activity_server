@@ -46,7 +46,7 @@ public class ActivityInstanceService {
         pm = activityService.getPrefixManager();
         if (ontology == null) {
             Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager,
-                    activityService.getDBCollection(), dataset.get("dataset"));
+                    activityService.getDBCollection(), dataset.get("dataset") + "-" + dataset.get("user"));
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }

@@ -64,27 +64,6 @@ public class ActivityService {
         return col;
     }
 
-    public void setAndSaveOntology(OWLOntology ontology_, MongoCollection col) {
-        ontology = ontology_;
-        IRI versionIRI = IRI.create(String.valueOf(version));
-        SetOntologyID change = new SetOntologyID(ontology,
-                new OWLOntologyID(ontology.getOntologyID().getOntologyIRI(), Optional.of(versionIRI)));
-        version += 1;
-        ontology.getOWLOntologyManager().applyChange(change);
-        // save the ontology
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ontology.saveOntology(ontology.getFormat(), outputStream);
-            String ontText = outputStream.toString(StandardCharsets.UTF_8);
-            Document newDoc = new Document().append("ontText", ontText);
-            Bson query = eq("name", "12");
-            col.replaceOne(query, newDoc);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public OWLOntologyManager getManager() {
         return manager;
     }
