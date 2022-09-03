@@ -36,19 +36,39 @@ public class ServiceUtils {
         String ontIRI = "";
         PrefixManager pm = null;
 
-        // database set up
-        try {
-            Document d = (Document) col.find(new Document("_id", dataset)).first();
-            String ontText = (String) d.get("ontText");
-            InputStream stream = new ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
-            // manager.clearOntologies();
-            ontology = manager.loadOntologyFromOntologyDocument(stream);
-        } catch (OWLOntologyAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (OWLOntologyCreationException ee) {
-            ee.printStackTrace();
-            return null;
+        File f = null;
+        // load from local data
+        if (dataset.contains("CASAS8")) {
+            f = new File("../ontologies/CASAS8_ontology.owl");
+        } else if (dataset.contains("Opportunity")) {
+            f = new File("../ontologies/Opportunity_ontology.owl");
         }
+        try {
+            ontology = manager.loadOntologyFromOntologyDocument(f);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        // database set up
+        // try
+        // {
+        // Document d = (Document) col.find(new Document("_id", dataset)).first();
+        // String ontText = (String) d.get("ontText");
+        // InputStream stream = new
+        // ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
+        // // manager.clearOntologies();
+        // ontology = manager.loadOntologyFromOntologyDocument(stream);
+        // }
+        // catch(
+        // OWLOntologyAlreadyExistsException e)
+        // {
+        // e.printStackTrace();
+        // }catch(
+        // OWLOntologyCreationException ee)
+        // {
+        // ee.printStackTrace();
+        // return null;
+        // }
 
         try {
             ontIRI = ontology.getOntologyID().getOntologyIRI().orElseThrow(Exception::new).toString();
@@ -68,18 +88,35 @@ public class ServiceUtils {
     }
 
     public static void saveOntology(OWLOntology ontology, String dataset, MongoCollection col) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ontology.saveOntology(ontology.getFormat(), outputStream);
-            // String ontText = outputStream.toString(StandardCharsets.UTF_8);
-            String ontText = new String(outputStream.toByteArray(), "UTF-8");
-            Document newDoc = new Document("_id", dataset).append("ontText", ontText);
-            Bson query = eq("_id", dataset);
-            col.replaceOne(query, newDoc);
 
+        // save to local file
+        File f = null;
+        // load from local data
+        if (dataset.contains("CASAS8")) {
+            f = new File("../ontologies/CASAS8_ontology.owl");
+        } else if (dataset.contains("Opportunity")) {
+            f = new File("../ontologies/Opportunity_ontology.owl");
+        }
+
+        try {
+            ontology.saveOntology();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        // save to the database
+        // try {
+        // ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // ontology.saveOntology(ontology.getFormat(), outputStream);
+        // // String ontText = outputStream.toString(StandardCharsets.UTF_8);
+        // String ontText = new String(outputStream.toByteArray(), "UTF-8");
+        // Document newDoc = new Document("_id", dataset).append("ontText", ontText);
+        // Bson query = eq("_id", dataset);
+        // col.replaceOne(query, newDoc);
+
+        // } catch (Exception ex) {
+        // ex.printStackTrace();
+        // }
     }
 
     // finding the frequent rules

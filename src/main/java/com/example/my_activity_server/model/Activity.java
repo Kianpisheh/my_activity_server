@@ -8,16 +8,18 @@ public class Activity {
     String name;
     int id;
     List<String> events;
+    List<String> excludedEvents;
     List<ActionEventConstraintPojo> constraints;
 
     public Activity() {
     }
 
-    public Activity(int id, String name, List<String> events,
+    public Activity(int id, String name, List<String> events, List<String> excludedEvents,
             List<ActionEventConstraintPojo> constraints) {
         this.id = id;
         this.name = name;
         this.events = events;
+        this.excludedEvents = excludedEvents;
         this.constraints = constraints;
     }
 
@@ -41,8 +43,16 @@ public class Activity {
         return events;
     }
 
+    public List<String> getExcludedEvents() {
+        return excludedEvents;
+    }
+
     public void setEvents(List<String> events) {
         this.events = events;
+    }
+
+    public void setExcludedEventsEvents(List<String> excludedEvents) {
+        this.excludedEvents = excludedEvents;
     }
 
     public List<ActionEventConstraintPojo> getConstraints() {

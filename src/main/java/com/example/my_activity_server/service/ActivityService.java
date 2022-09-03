@@ -74,7 +74,7 @@ public class ActivityService {
 
     public List<Activity> getActivities(String dataset) {
 
-        // if (dataset.equals("CASAS8")) {
+        // if (dataset.contains("CASAS8")) {
         // File f = new File("CASAS8_ontology.owl");
         // try {
         // ontology = manager.loadOntologyFromOntologyDocument(f);

@@ -39,12 +39,11 @@ public class OwlToPojo {
     public static Activity getPojoActivity(OWLActivity owlActivity, int id) {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
         List<String> events = getEvents(atoms);
+        List<String> excludedEvents = getEvents(atoms);
 
         List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
 
-        // List<ActionEventConstraintPojo> constraints = getConstraints(atoms);
-
-        return new Activity(id, owlActivity.getName(), events, constraints);
+        return new Activity(id, owlActivity.getName(), events, excludedEvents, constraints);
     }
 
     public static List<String> getEvents(List<SWRLAtom> atoms) {
@@ -73,6 +72,33 @@ public class OwlToPojo {
         });
 
         return events;
+    }
+
+    public static List<String> getExcludedEvents(List<SWRLAtom> atoms) {
+        List<String> excludedEvents = new ArrayList<>();
+
+        atoms.forEach(atom -> {
+            if (atom instanceof SWRLObjectPropertyAtomImpl) {
+                OWLObjectPropertyImpl predicateClass = (OWLObjectPropertyImpl) atom.getPredicate();
+                String PredicateName = predicateClass.getIRI().getShortForm();
+                if (PredicateName.equals(Predicate.HAS_NOT_EVENT)) {
+                    SWRLArgument eventArgument = (SWRLArgument) atom.allArguments().toArray()[1];
+                    atoms.forEach(atom2 -> {
+                        SWRLArgument atom2Arg = atom2.allArguments().findFirst().get();
+                        // the ones that the first variable is "e"
+                        if (atom2Arg.equals(eventArgument)) {
+                            if (atom2 instanceof SWRLClassAtomImpl) { // event predicate
+                                OWLClassImpl eventPredicate = (OWLClassImpl) atom2.getPredicate();
+                                String predicateName = eventPredicate.getIRI().getShortForm();
+                                excludedEvents.add(predicateName);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        return excludedEvents;
     }
 
     public static List<ActionEventConstraintPojo> getTimeConstraints(List<SWRLAtom> atoms) {

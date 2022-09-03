@@ -15,6 +15,7 @@ public class PojoToOWL {
 
         // check if the events format is correct
         Object events = activity.get("events");
+        Object excludedEvents = activity.get("excludedEvents");
         if (events instanceof List<?>) {
             for (Object ev : (List<?>) events) {
                 if (!(ev instanceof String)) {
@@ -25,6 +26,7 @@ public class PojoToOWL {
         }
 
         List<String> events2 = (List<String>) events;
+        List<String> excludedEvents2 = (List<String>) excludedEvents;
         List<Map<String, Object>> constraints = (List<Map<String, Object>>) activity.get("constraints");
 
         // add the extra event of "same interaction time distance" axiom (hasEvent for
@@ -42,6 +44,12 @@ public class PojoToOWL {
         for (int i = 0; i < events2.size(); i++) {
             bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_EVENT, i, events2.get(i), i);
         }
+
+        // add events exclusion predicates
+        for (int i = 0; i < excludedEvents2.size(); i++) {
+            bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_NOT_EVENT, i, excludedEvents2.get(i), i);
+        }
+
         // add constraints predicates
         for (int i = 0; i < constraints.size(); i++) {
             List<String> constraintEvents = (List<String>) constraints.get(i).get("events");
