@@ -46,8 +46,10 @@ public class PojoToOWL {
         }
 
         // add events exclusion predicates
-        for (int i = 0; i < excludedEvents2.size(); i++) {
-            bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_NOT_EVENT, i, excludedEvents2.get(i), i);
+        for (int i = events2.size(); i < excludedEvents2.size() + events2.size(); i++) {
+            bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_NOT_EVENT, i,
+                    excludedEvents2.get(i - events2.size()),
+                    i);
         }
 
         // add constraints predicates

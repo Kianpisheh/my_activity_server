@@ -39,7 +39,7 @@ public class OwlToPojo {
     public static Activity getPojoActivity(OWLActivity owlActivity, int id) {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
         List<String> events = getEvents(atoms);
-        List<String> excludedEvents = getEvents(atoms);
+        List<String> excludedEvents = getExcludedEvents(atoms);
 
         List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
 

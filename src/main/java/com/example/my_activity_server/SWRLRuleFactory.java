@@ -114,35 +114,6 @@ public class SWRLRuleFactory {
         return declarations;
     }
 
-    public static SWRLDataRangeAtom createDataRangeAtom(String atomStr, String swrlStr, OWLDataFactory df) {
-
-        Set<OWLFacetRestriction> restrections = new HashSet<>();
-        String variableName = "";
-
-        String[] ss = atomStr.split("<");
-        if (ss.length == 3) {
-            variableName = ss[1];
-            restrections
-                    .add(df.getOWLFacetRestriction(OWLFacet.MAX_INCLUSIVE, df.getOWLLiteral(Integer.parseInt(ss[2]))));
-            restrections
-                    .add(df.getOWLFacetRestriction(OWLFacet.MIN_INCLUSIVE, df.getOWLLiteral(Integer.parseInt(ss[0]))));
-        } else if (ss.length == 2) {
-            try {
-                Integer.parseInt(ss[0]);
-                variableName = ss[1];
-                restrections.add(
-                        df.getOWLFacetRestriction(OWLFacet.MAX_INCLUSIVE, df.getOWLLiteral(Integer.parseInt(ss[0]))));
-            } catch (NumberFormatException e) {
-                variableName = ss[0];
-                restrections.add(
-                        df.getOWLFacetRestriction(OWLFacet.MIN_INCLUSIVE, df.getOWLLiteral(Integer.parseInt(ss[1]))));
-            }
-        }
-
-        OWLDatatypeRestriction rs = df.getOWLDatatypeRestriction(XSD.INTEGER, restrections);
-        return df.getSWRLDataRangeAtom(rs, SWRL.variable(IRI.create(swrlStr + "#" + variableName)));
-    }
-
     public static SWRLClassAtom createClassAtom(String classAtomStr, String swrlStr, PrefixManager pm,
             OWLDataFactory df) {
 
