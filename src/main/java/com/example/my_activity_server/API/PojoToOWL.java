@@ -1,9 +1,7 @@
 package com.example.my_activity_server.API;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.example.my_activity_server.Predicate;
 

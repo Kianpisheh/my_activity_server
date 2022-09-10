@@ -1,7 +1,9 @@
 package com.example.my_activity_server.service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,11 +53,19 @@ public class ActivityInstanceService {
             pm = (PrefixManager) ontologyPm.get("pm");
         }
 
+        // read data from local files
+        // String path = "../data/" + dataset.get("dataset") + "/";
+        // List<ActivityInstance> activityInstances = new ArrayList<>();
+        // File folder = new File(path);
+
+        // File f = new File(path, child);
+
         // read data from the database
         Map<String, Object> object = null;
         List<ActivityInstance> activityInstances = new ArrayList<>();
         MongoDatabase db = activityService.getDatabase();
-        MongoCollection activityCollection = db.getCollection(dataset.get("dataset") + "-dataset");
+        MongoCollection activityCollection = db.getCollection(dataset.get("dataset")
+                + "-dataset");
         FindIterable<Document> iterDoc = activityCollection.find();
         Iterator it = iterDoc.iterator();
         while (it.hasNext()) {
@@ -74,14 +84,15 @@ public class ActivityInstanceService {
                     t1 = (double) ev.get("start_time");
                     t2 = (double) ev.get("end_time");
                 } else {
-                    t1 = (int) ev.get("start_time"); // TODO: int?
+                    t1 = (int) ev.get("start_time");
                     t2 = (int) ev.get("end_time");
                 }
                 ;
                 String eventName = actName + "_" + evType + "_" + Double.toString(t2);
                 eventInstances.add(new EventInstance(eventName, evType, t1, t2));
             }
-            activityInstances.add(new ActivityInstance(actName, actType, eventInstances));
+            activityInstances.add(new ActivityInstance(actName, actType,
+                    eventInstances));
         }
 
         // add the activity instances (indioviduals) into the ontology

@@ -40,8 +40,12 @@ public class ServiceUtils {
         // load from local data
         if (dataset.contains("CASAS8")) {
             f = new File("../ontologies/CASAS8_ontology.owl");
+        } else if (dataset.contains("Opportunity_gesture")) {
+            f = new File("../ontologies/Opportunity_gesture_ontology.owl");
         } else if (dataset.contains("Opportunity")) {
             f = new File("../ontologies/Opportunity_ontology.owl");
+        } else if (dataset.contains("Epic")) {
+            f = new File("../ontologies/Epic_ontology.owl");
         }
         try {
             ontology = manager.loadOntologyFromOntologyDocument(f);
@@ -94,8 +98,10 @@ public class ServiceUtils {
         // load from local data
         if (dataset.contains("CASAS8")) {
             f = new File("../ontologies/CASAS8_ontology.owl");
-        } else if (dataset.contains("Opportunity")) {
+        } else if (dataset.equals("Opportunity")) {
             f = new File("../ontologies/Opportunity_ontology.owl");
+        } else if (dataset.equals("Opportunity_gesture")) {
+            f = new File("../ontologies/Opportunity_gesture_ontology.owl");
         }
 
         try {
