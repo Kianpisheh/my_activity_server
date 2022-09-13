@@ -1,20 +1,33 @@
 package com.example.my_activity_server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.model.SWRLAtom;
+import org.semanticweb.owlapi.model.SWRLClassAtom;
+import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom;
+import org.semanticweb.owlapi.model.SWRLRule;
 
 public class OntologyDataManager {
 
-    public static List<List<String>> getOREvents(OWLOntology ontology, PrefixManager pm, OWLDataFactory df) {
+    public static Map<String, List<String>> getOREvents(OWLOntology ontology, String activityName, PrefixManager pm,
+            OWLDataFactory df) {
 
-        List<List<String>> ORevents = new ArrayList<>();
+        SWRLRule rule = getRule(ontology, activityName);
+        List<String> targetEventGroups = getEventGroupsList(rule);
+
+        Map<String, List<String>> ORevents = new HashMap<>();
 
         OWLClass eventClass = df.getOWLClass(":Event", pm);
         List<OWLSubClassOfAxiom> subEventClassAxioms = ontology.subClassAxiomsForSuperClass(eventClass)
@@ -22,17 +35,63 @@ public class OntologyDataManager {
 
         List<String> eventGroupMembers = new ArrayList<>();
         for (OWLSubClassOfAxiom ax : subEventClassAxioms) {
-            String subEventName = ax.getSuperClass().asOWLClass().getIRI().getShortForm();
-            if (subEventName.startsWith(Predicate.EVENTGROUP)) {
-                List<OWLClass> eventGroupMembersClass = ax.getSubClass().classesInSignature()
-                        .collect(Collectors.toList());
-                eventGroupMembersClass.forEach(member -> eventGroupMembers.add(member.getIRI().getShortForm()));
-                ORevents.add(eventGroupMembers);
+            String subEventName = ax.getSubClass().asOWLClass().getIRI().getShortForm();
+            if (targetEventGroups.contains(subEventName)) {
+                OWLClass eventGroupClass = ax.getSubClass().asOWLClass();
+                OWLEquivalentClassesAxiom eventGroupSubClassAxioms = ontology.equivalentClassesAxioms(eventGroupClass)
+                        .findFirst().get();
+
+                for (OWLClass memberClass : new ArrayList<>(eventGroupSubClassAxioms.getClassesInSignature())) {
+                    String evName = memberClass.getIRI().getShortForm();
+                    if (evName != subEventName) {
+                        eventGroupMembers.add(evName);
+                    }
+                }
+
+                if (eventGroupMembers.size() > 0) {
+                    ORevents.put(subEventName, eventGroupMembers);
+                }
             }
         }
 
         return ORevents;
 
+    }
+
+    public static SWRLRule getRule(OWLOntology ontology, String activity) {
+
+        List<OWLAxiom> axioms = new ArrayList<>(ontology.getAxioms());
+        for (OWLAxiom axiom : axioms) {
+            if (axiom instanceof SWRLRule) {
+                SWRLRule rule = (SWRLRule) axiom;
+                SWRLAtom act = rule.head().findFirst().get();
+                OWLClass ruleHeadClass = (OWLClass) act.getPredicate();
+                if (activity.equals(ruleHeadClass.getIRI().getShortForm())) {
+                    return rule;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static List<String> getEventGroupsList(SWRLRule rule) {
+        List<String> eventGroups = new ArrayList<>();
+
+        if (rule == null) {
+            return eventGroups;
+        }
+
+        for (SWRLAtom atom : rule.bodyList()) {
+            if (atom instanceof SWRLClassAtom) {
+                OWLClass atomClass = (OWLClass) atom.getPredicate();
+                String className = atomClass.getIRI().getShortForm();
+                if (className.startsWith(Predicate.EVENTGROUP)) {
+                    eventGroups.add(className);
+                }
+            }
+        }
+        return eventGroups;
     }
 
 }

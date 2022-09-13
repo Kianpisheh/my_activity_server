@@ -45,7 +45,8 @@ public class OwlToPojo {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
         List<String> events = getEvents(atoms);
         List<String> excludedEvents = getExcludedEvents(atoms);
-        List<List<String>> eventORList = OntologyDataManager.getOREvents(ontology, pm, df);
+        List<List<String>> eventORList = new ArrayList<>(
+                OntologyDataManager.getOREvents(ontology, owlActivity.getName(), pm, df).values());
 
         List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
 

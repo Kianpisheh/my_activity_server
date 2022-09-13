@@ -152,6 +152,10 @@ public class ActivityService {
             ontology.add(subclassAxiom);
         }
 
+        // create and add the new swrl rule
+        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
+        String headString = activityName + "(a)";
+
         // remove the old swrl rule
         ontology.axioms().forEach(axiom -> {
             if (axiom instanceof SWRLRule) {
@@ -160,13 +164,10 @@ public class ActivityService {
                 OWLClass ruleHeadClass = (OWLClass) act.getPredicate();
                 if (activityName.equals(ruleHeadClass.getIRI().getShortForm())) {
                     ontology.remove(rule);
+                    return;
                 }
             }
         });
-
-        // create and add the new swrl rule
-        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
-        String headString = activityName + "(a)";
 
         if (bodyString != "Activity(a)") {
             SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,

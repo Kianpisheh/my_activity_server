@@ -17,8 +17,11 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataPropertyExpression;
 import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
+import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
+import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLFacetRestriction;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
+import org.semanticweb.owlapi.model.OWLObjectUnionOf;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -81,6 +84,7 @@ public class SWRLRuleFactory {
         });
         String[] atomStrings = expressionStr.split("\\^");
 
+        int eg = 0; // event group idx
         for (int i = 0; i < atomStrings.length; i++) {
             if (declarations.get("ObjectProperty").contains(atomStrings[i].split("\\(")[0])) {
                 atoms.add(createObjectPropertyAtom(atomStrings[i], swrlStr, pm, df));
@@ -89,13 +93,17 @@ public class SWRLRuleFactory {
             } else if (declarations.get("builtins").contains(atomStrings[i].split("\\(")[0])) {
                 atoms.add(createBuiltInAtom(atomStrings[i], swrlStr, pm));
             } else if (!atomStrings[i].contains(",")) {
-
                 // create the EventGroup class if does not exist
                 if (atomStrings[i].startsWith(Predicate.EVENTGROUP)) {
-                    addEventGroupNecessaryAxioms(atomStrings[i], OREvents, ontology, df, pm);
+                    Object[] res = addEventGroupNecessaryAxioms(atomStrings[i], OREvents.get(eg), ontology, df, pm,
+                            swrlStr);
+                    ontology = (OWLOntology) res[1];
+                    SWRLClassAtom atom = (SWRLClassAtom) res[0];
+                    atoms.add(atom);
+                    eg += 1;
+                } else {
+                    atoms.add(createClassAtom(atomStrings[i], swrlStr, pm, df));
                 }
-
-                atoms.add(createClassAtom(atomStrings[i], swrlStr, pm, df));
             } else {
                 throw new Exception("Atom is not supported");
             }
@@ -105,29 +113,32 @@ public class SWRLRuleFactory {
 
     }
 
-    private static OWLOntology addEventGroupNecessaryAxioms(String evGroupStr, List<List<String>> OREvents,
+    private static Object[] addEventGroupNecessaryAxioms(String evGroupStr, List<String> OREvents,
             OWLOntology ontology, OWLDataFactory df,
-            PrefixManager pm) {
-
+            PrefixManager pm, String swrlStr) {
         // precondition: there is no redundant EventGroup in the ontology
 
-        // see it is already in the ontology
+        // create and add the given event group as the subset of the Event class
         OWLClass eventClass = df.getOWLClass(":Event", pm);
-        List<OWLSubClassOfAxiom> subEventClassAxioms = ontology.subClassAxiomsForSuperClass(eventClass)
-                .collect(Collectors.toList());
-
-        List<String> eventGroupMembers = new ArrayList<>();
-        for (OWLSubClassOfAxiom ax : subEventClassAxioms) {
-            List<OWLClass> eventGroupMembersClass = ax.getSubClass().classesInSignature().collect(Collectors.toList());
-            eventGroupMembersClass.forEach(member -> eventGroupMembers.add(member.getIRI().getShortForm()));
-
-            for (List<String> OREvent : OREvents) {
-                int x = 1;
-            }
-            //
+        OWLClass eventGroupClass = df.getOWLClass(":" + evGroupStr.split("\\(")[0], pm);
+        OWLSubClassOfAxiom subClassaxiom = df.getOWLSubClassOfAxiom(eventGroupClass, eventClass);
+        ontology.add(subClassaxiom);
+        //
+        List<OWLClass> subEvents = new ArrayList<>();
+        for (String eventGroupMember : OREvents) {
+            subEvents.add(df.getOWLClass(":" + eventGroupMember, pm));
         }
 
-        return ontology;
+        String evGroupClassName = evGroupStr.split("\\(")[0];
+        OWLEquivalentClassesAxiom OREventAxiom = df.getOWLEquivalentClassesAxiom(
+                df.getOWLClass(":" + evGroupClassName, pm), df.getOWLObjectUnionOf(subEvents));
+        ontology.add(OREventAxiom);
+        String variableName = evGroupStr.substring(evGroupStr.indexOf("(") + 1, evGroupStr.indexOf(")"));
+        SWRLClassAtom atom = SWRL.classAtom(df.getOWLClass(":" + evGroupClassName, pm),
+                SWRL.variable(IRI.create(swrlStr + "#" + variableName)));
+
+        Object[] res = { atom, ontology };
+        return res;
     }
 
     public static Map<String, List<String>> getOntologyDeclarations(OWLOntology ontology) {

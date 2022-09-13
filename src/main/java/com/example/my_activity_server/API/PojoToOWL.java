@@ -1,5 +1,6 @@
 package com.example.my_activity_server.API;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,11 +58,17 @@ public class PojoToOWL {
 
         // add ORevents predicates
         List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
-        List<List<String>> currentOREvents = OntologyDataManager.getOREvents(ontology, pm, df);
+        String activityName = (String) activity.get("name");
+        Map<String, List<String>> currentOREvents = OntologyDataManager.getOREvents(ontology, activityName, pm, df);
         for (int i = 0; i < OREvents.size(); i++) {
             List<String> evs = OREvents.get(i);
-            // check if such OR events (i.e., EventGroup) exist in the ontology
-            bodyString += String.format("^%s(a,eg_%s)^%s(e_%s)", Predicate.HAS_EVENT, i);
+            // it has to be an axiom of "this" activity
+            String eventGroupName = getEventGroupName(currentOREvents, evs);
+            if (eventGroupName.equals("")) {
+                // create a new eventGroup name
+                eventGroupName = getUniqueEventGroupName(currentOREvents);
+            }
+            bodyString += String.format("^%s(a,eg_%s)^%s(eg_%s)", Predicate.HAS_EVENT, i, eventGroupName, i);
         }
 
         // add constraints predicates
@@ -113,6 +120,32 @@ public class PojoToOWL {
         String[] ss = bodyString.split(event + "[(]"); // retireve the event var name
         String eventVar = ss[1 + idx].substring(0, 3); // (e.g., e_0)
         return eventVar;
+    }
+
+    private static String getEventGroupName(Map<String, List<String>> ontologyOREvents, List<String> OREvents) {
+        for (String evGroupName : ontologyOREvents.keySet()) {
+            if (ontologyOREvents.get(evGroupName).containsAll(OREvents)
+                    || OREvents.containsAll(ontologyOREvents.get(evGroupName))) {
+                return evGroupName;
+            }
+        }
+
+        return "";
+    }
+
+    private static String getUniqueEventGroupName(Map<String, List<String>> ontologyOREvents) {
+
+        int i = 0;
+        int[] ids = new int[ontologyOREvents.size() + 1];
+        ids[0] = 1;
+        for (String name : ontologyOREvents.keySet()) {
+            String idStr = name.split(Predicate.EVENTGROUP, 2)[1];
+            ids[i] = Integer.valueOf(idStr);
+            i += 1;
+        }
+
+        Arrays.sort(ids);
+        return String.format(Predicate.EVENTGROUP + "%s", ids.length);
     }
 
 }
