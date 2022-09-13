@@ -95,7 +95,8 @@ public class ActivityInstanceService {
                     eventInstances));
         }
 
-        // add the activity instances (indioviduals) into the ontology
+        // add the activity and event indioviduals+the corresponding classes into the
+        // ontology
         ontology = ActivityInstanceManager.addActivityInstances(activityInstances, manager, ontology, pm);
         MongoCollection col = activityService.getDBCollection();
 

@@ -126,7 +126,8 @@ public class ActivityService {
                 SWRLRule rule = (SWRLRule) axiom;
                 if (rule.bodyList().size() != 0 && rule.headList().size() != 0) {
                     owlActivity = new OWLActivity((SWRLRule) axiom);
-                    activities.add(OwlToPojo.getPojoActivity(owlActivity, i));
+                    activities
+                            .add(OwlToPojo.getPojoActivity(owlActivity, ontology, pm, manager.getOWLDataFactory(), i));
                     i += 1;
                 }
             }
@@ -137,6 +138,7 @@ public class ActivityService {
 
     public void updateActivity(Map<String, Object> activity, String dataset) {
         String activityName = ((String) activity.get("name"));
+        List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
 
         // add the activity into the ontology
         OWLClass activityClass = manager.getOWLDataFactory().getOWLClass(":" +
@@ -163,12 +165,12 @@ public class ActivityService {
         });
 
         // create and add the new swrl rule
-        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity);
+        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
         String headString = activityName + "(a)";
 
         if (bodyString != "Activity(a)") {
             SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,
-                    manager, ontology, pm);
+                    OREvents, manager, ontology, pm);
             if (rule != null) {
                 ontology.add(rule);
             } else {
@@ -186,8 +188,8 @@ public class ActivityService {
     }
 
     public void addActivity(Map<String, Object> activity, String dataset) {
-
         String activityName = ((String) activity.get("name"));
+        List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
 
         // add the activity into the ontology
         OWLClass activityClass = manager.getOWLDataFactory().getOWLClass(":" +
@@ -199,13 +201,13 @@ public class ActivityService {
                 rootActivityClass);
         ontology.add(subclassAxiom);
 
-        // // create the swrl rule
-        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity);
+        // create the swrl rule
+        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
         String headString = activityName + "(a)";
 
         if (bodyString != "Activity(a)") {
             SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,
-                    manager, ontology, pm);
+                    OREvents, manager, ontology, pm);
             ontology.add(rule);
         }
 
@@ -249,6 +251,8 @@ public class ActivityService {
                 }
             }
         });
+
+        // TODO: remove its EventGroups
 
         IRI versionIRI = IRI.create(String.valueOf(version));
         SetOntologyID change = new SetOntologyID(ontology,

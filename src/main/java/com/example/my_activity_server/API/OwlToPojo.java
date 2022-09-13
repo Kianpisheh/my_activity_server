@@ -12,12 +12,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.example.my_activity_server.OWLActivity;
+import com.example.my_activity_server.OntologyDataManager;
 import com.example.my_activity_server.Predicate;
 import com.example.my_activity_server.model.Activity;
 import com.example.my_activity_server.model.ActivityInstance;
 
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLPropertyAxiom;
+import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLArgument;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLBuiltInAtom;
@@ -36,14 +40,16 @@ import uk.ac.manchester.cs.owl.owlapi.SWRLVariableImpl;
 
 public class OwlToPojo {
 
-    public static Activity getPojoActivity(OWLActivity owlActivity, int id) {
+    public static Activity getPojoActivity(OWLActivity owlActivity, OWLOntology ontology, PrefixManager pm,
+            OWLDataFactory df, int id) {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
         List<String> events = getEvents(atoms);
         List<String> excludedEvents = getExcludedEvents(atoms);
+        List<List<String>> eventORList = OntologyDataManager.getOREvents(ontology, pm, df);
 
         List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
 
-        return new Activity(id, owlActivity.getName(), events, excludedEvents, constraints);
+        return new Activity(id, owlActivity.getName(), events, excludedEvents, eventORList, constraints);
     }
 
     public static List<String> getEvents(List<SWRLAtom> atoms) {
@@ -72,6 +78,13 @@ public class OwlToPojo {
         });
 
         return events;
+    }
+
+    public static List<List<String>> getOREvents(List<SWRLAtom> atoms) {
+        List<List<String>> OREvents = new ArrayList<>();
+
+        return OREvents;
+
     }
 
     public static List<String> getExcludedEvents(List<SWRLAtom> atoms) {
@@ -295,7 +308,6 @@ public class OwlToPojo {
     }
 
     public static ActivityInstance getActivityInstances() {
-
         return null;
     }
 

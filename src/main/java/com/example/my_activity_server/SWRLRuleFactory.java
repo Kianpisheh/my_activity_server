@@ -1,6 +1,8 @@
 package com.example.my_activity_server;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataPropertyExpression;
 import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
@@ -18,6 +21,7 @@ import org.semanticweb.owlapi.model.OWLFacetRestriction;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLBuiltInAtom;
@@ -36,7 +40,9 @@ import openllet.owlapi.XSD;
 
 public class SWRLRuleFactory {
 
-    public static SWRLRule getSWRLRuleFromString(String bodyString, String headString, OWLOntologyManager manager,
+    public static SWRLRule getSWRLRuleFromString(String bodyString, String headString,
+            List<List<String>> OREvents,
+            OWLOntologyManager manager,
             OWLOntology ontology,
             PrefixManager pm) {
 
@@ -44,8 +50,8 @@ public class SWRLRuleFactory {
         Stream<SWRLAtom> body = Stream.empty();
         Stream<SWRLAtom> head = Stream.empty();
         try {
-            body = createSWRLAtoms(bodyString, ontology, manager.getOWLDataFactory(), pm, "urn:swrl:var");
-            head = createSWRLAtoms(headString, ontology, manager.getOWLDataFactory(), pm, "urn:swrl:var");
+            body = createSWRLAtoms(bodyString, ontology, manager.getOWLDataFactory(), OREvents, pm, "urn:swrl:var");
+            head = createSWRLAtoms(headString, ontology, manager.getOWLDataFactory(), null, pm, "urn:swrl:var");
         } catch (Exception e) {
             e.printStackTrace();
 
@@ -61,7 +67,7 @@ public class SWRLRuleFactory {
     }
 
     public static Stream<SWRLAtom> createSWRLAtoms(String expressionStr, OWLOntology ontology, OWLDataFactory df,
-            PrefixManager pm, String swrlStr) throws Exception {
+            List<List<String>> OREvents, PrefixManager pm, String swrlStr) throws Exception {
 
         List<SWRLAtom> atoms = new ArrayList<>();
 
@@ -83,6 +89,12 @@ public class SWRLRuleFactory {
             } else if (declarations.get("builtins").contains(atomStrings[i].split("\\(")[0])) {
                 atoms.add(createBuiltInAtom(atomStrings[i], swrlStr, pm));
             } else if (!atomStrings[i].contains(",")) {
+
+                // create the EventGroup class if does not exist
+                if (atomStrings[i].startsWith(Predicate.EVENTGROUP)) {
+                    addEventGroupNecessaryAxioms(atomStrings[i], OREvents, ontology, df, pm);
+                }
+
                 atoms.add(createClassAtom(atomStrings[i], swrlStr, pm, df));
             } else {
                 throw new Exception("Atom is not supported");
@@ -91,6 +103,31 @@ public class SWRLRuleFactory {
 
         return atoms.stream();
 
+    }
+
+    private static OWLOntology addEventGroupNecessaryAxioms(String evGroupStr, List<List<String>> OREvents,
+            OWLOntology ontology, OWLDataFactory df,
+            PrefixManager pm) {
+
+        // precondition: there is no redundant EventGroup in the ontology
+
+        // see it is already in the ontology
+        OWLClass eventClass = df.getOWLClass(":Event", pm);
+        List<OWLSubClassOfAxiom> subEventClassAxioms = ontology.subClassAxiomsForSuperClass(eventClass)
+                .collect(Collectors.toList());
+
+        List<String> eventGroupMembers = new ArrayList<>();
+        for (OWLSubClassOfAxiom ax : subEventClassAxioms) {
+            List<OWLClass> eventGroupMembersClass = ax.getSubClass().classesInSignature().collect(Collectors.toList());
+            eventGroupMembersClass.forEach(member -> eventGroupMembers.add(member.getIRI().getShortForm()));
+
+            for (List<String> OREvent : OREvents) {
+                int x = 1;
+            }
+            //
+        }
+
+        return ontology;
     }
 
     public static Map<String, List<String>> getOntologyDeclarations(OWLOntology ontology) {

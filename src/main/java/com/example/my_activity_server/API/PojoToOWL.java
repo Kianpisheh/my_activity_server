@@ -3,17 +3,22 @@ package com.example.my_activity_server.API;
 import java.util.List;
 import java.util.Map;
 
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.PrefixManager;
+
+import com.example.my_activity_server.OntologyDataManager;
 import com.example.my_activity_server.Predicate;
 
 public class PojoToOWL {
 
-    public static String createSwrlRuleBodyString(Map<String, Object> activity) {
+    public static String createSwrlRuleBodyString(Map<String, Object> activity, OWLOntology ontology, PrefixManager pm,
+            OWLDataFactory df) {
 
         String bodyString = "Activity(a)";
 
         // check if the events format is correct
         Object events = activity.get("events");
-        Object excludedEvents = activity.get("excludedEvents");
         if (events instanceof List<?>) {
             for (Object ev : (List<?>) events) {
                 if (!(ev instanceof String)) {
@@ -23,12 +28,11 @@ public class PojoToOWL {
             }
         }
 
-        List<String> events2 = (List<String>) events;
-        List<String> excludedEvents2 = (List<String>) excludedEvents;
         List<Map<String, Object>> constraints = (List<Map<String, Object>>) activity.get("constraints");
 
         // add the extra event of "same interaction time distance" axiom (hasEvent for
         // that extra event)
+        List<String> events2 = (List<String>) events;
         for (int i = 0; i < constraints.size(); i++) {
             List<String> consEvents = (List<String>) constraints.get(i).get("events");
             if (constraints.get(i).get("type").equals("time_distance")) {
@@ -44,10 +48,20 @@ public class PojoToOWL {
         }
 
         // add events exclusion predicates
-        for (int i = events2.size(); i < excludedEvents2.size() + events2.size(); i++) {
+        List<String> excludedEvents = (List<String>) activity.get("excludedEvents");
+        for (int i = events2.size(); i < excludedEvents.size() + events2.size(); i++) {
             bodyString += String.format("^%s(a,e_%s)^%s(e_%s)", Predicate.HAS_NOT_EVENT, i,
-                    excludedEvents2.get(i - events2.size()),
+                    excludedEvents.get(i - events2.size()),
                     i);
+        }
+
+        // add ORevents predicates
+        List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
+        List<List<String>> currentOREvents = OntologyDataManager.getOREvents(ontology, pm, df);
+        for (int i = 0; i < OREvents.size(); i++) {
+            List<String> evs = OREvents.get(i);
+            // check if such OR events (i.e., EventGroup) exist in the ontology
+            bodyString += String.format("^%s(a,eg_%s)^%s(e_%s)", Predicate.HAS_EVENT, i);
         }
 
         // add constraints predicates

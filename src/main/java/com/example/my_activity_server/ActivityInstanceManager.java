@@ -76,23 +76,24 @@ public class ActivityInstanceManager {
             OWLNamedIndividual activityInd = df.getOWLNamedIndividual(instance.getName(), pm);
 
             // check if already exist
-            // for (OWLNamedIndividual ind : ontology.getIndividualsInSignature()) {
-            // if (ind.getIRI().getShortForm().equals(instance.getName())) {
-            // System.out.println("The individual '" + instance.getName() + "' already
-            // exist");
-            // continue;
-            // }
-            // }
+            for (OWLNamedIndividual ind : ontology.getIndividualsInSignature()) {
+                if (ind.getIRI().getShortForm().equals(instance.getName())) {
+                    System.out.println("The individual '" + instance.getName() + "' already exist");
+                    continue;
+                }
+            }
 
             OWLDeclarationAxiom activityIndDecAxiom = df.getOWLDeclarationAxiom(activityInd);
             ontology.add(activityIndDecAxiom);
             OWLClassAssertionAxiom activityClassAxiom = df.getOWLClassAssertionAxiom(rootActivityClass, activityInd);
             ontology.add(activityClassAxiom);
+
             // create events, object properties, and data properties
             for (EventInstance event : instance.getEvents()) {
                 OWLNamedIndividual eventInd = df.getOWLNamedIndividual(event.getName(), pm);
                 OWLDeclarationAxiom eventIndDecAxiom = df.getOWLDeclarationAxiom(eventInd);
                 ontology.add(eventIndDecAxiom);
+
                 // event class and subclass of Objects
                 OWLClass eventClass = df.getOWLClass(convertToPascalCase(event.getType()), pm);
                 OWLClassAssertionAxiom eventClassAxiom = df.getOWLClassAssertionAxiom(eventClass, eventInd);
@@ -100,11 +101,13 @@ public class ActivityInstanceManager {
                 OWLClass objectsClass = df.getOWLClass("Objects", pm);
                 OWLSubClassOfAxiom eventSubClassAxiom = df.getOWLSubClassOfAxiom(eventClass, objectsClass);
                 ontology.add(eventSubClassAxiom);
+
                 // object property (hasEvent)
                 OWLObjectProperty objProperty = df.getOWLObjectProperty(":" + Predicate.HAS_EVENT, pm);
                 OWLObjectPropertyAssertionAxiom objPropertyAxiom = df.getOWLObjectPropertyAssertionAxiom(objProperty,
                         activityInd, eventInd);
                 ontology.add(objPropertyAxiom);
+
                 // data properties (hasStartTime, hasEndTime)
                 OWLDataProperty dataPropertyStartTime = df.getOWLDataProperty(":" + Predicate.HAS_START_TIME, pm);
                 OWLDataProperty dataPropertyEndTime = df.getOWLDataProperty(":" + Predicate.HAS_END_TIME, pm);
