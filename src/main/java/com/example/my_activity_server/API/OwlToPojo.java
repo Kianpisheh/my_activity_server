@@ -46,7 +46,7 @@ public class OwlToPojo {
         List<String> events = getEvents(atoms);
         List<String> excludedEvents = getExcludedEvents(atoms);
         List<List<String>> eventORList = new ArrayList<>(
-                OntologyDataManager.getOREvents(ontology, owlActivity.getName(), pm, df).values());
+                OntologyDataManager.getOREvents(ontology, owlActivity.getRule(), pm, df).values());
 
         List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
 
@@ -79,13 +79,6 @@ public class OwlToPojo {
         });
 
         return events;
-    }
-
-    public static List<List<String>> getOREvents(List<SWRLAtom> atoms) {
-        List<List<String>> OREvents = new ArrayList<>();
-
-        return OREvents;
-
     }
 
     public static List<String> getExcludedEvents(List<SWRLAtom> atoms) {

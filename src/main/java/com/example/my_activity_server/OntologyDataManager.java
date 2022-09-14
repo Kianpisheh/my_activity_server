@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -21,10 +22,9 @@ import org.semanticweb.owlapi.model.SWRLRule;
 
 public class OntologyDataManager {
 
-    public static Map<String, List<String>> getOREvents(OWLOntology ontology, String activityName, PrefixManager pm,
+    public static Map<String, List<String>> getOREvents(OWLOntology ontology, SWRLRule rule, PrefixManager pm,
             OWLDataFactory df) {
 
-        SWRLRule rule = getRule(ontology, activityName);
         List<String> targetEventGroups = getEventGroupsList(rule);
 
         Map<String, List<String>> ORevents = new HashMap<>();
@@ -56,6 +56,18 @@ public class OntologyDataManager {
 
         return ORevents;
 
+    }
+
+    public static Map<String, List<String>> getAllOREvents(OWLOntology ontology, PrefixManager pm,
+            OWLDataFactory df) {
+
+        Map<String, List<String>> ORevents = new HashMap<>();
+        Set<SWRLRule> rules = ontology.getAxioms(AxiomType.SWRL_RULE);
+        for (SWRLRule rule : rules) {
+            ORevents.putAll(getOREvents(ontology, rule, pm, df));
+        }
+
+        return ORevents;
     }
 
     public static SWRLRule getRule(OWLOntology ontology, String activity) {

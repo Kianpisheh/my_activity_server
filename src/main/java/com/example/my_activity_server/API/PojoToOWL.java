@@ -7,6 +7,7 @@ import java.util.Map;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.model.SWRLRule;
 
 import com.example.my_activity_server.OntologyDataManager;
 import com.example.my_activity_server.Predicate;
@@ -59,14 +60,16 @@ public class PojoToOWL {
         // add ORevents predicates
         List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
         String activityName = (String) activity.get("name");
-        Map<String, List<String>> currentOREvents = OntologyDataManager.getOREvents(ontology, activityName, pm, df);
+        SWRLRule rule = OntologyDataManager.getRule(ontology, activityName);
+        Map<String, List<String>> currentOREvents = OntologyDataManager.getOREvents(ontology, rule, pm, df);
         for (int i = 0; i < OREvents.size(); i++) {
             List<String> evs = OREvents.get(i);
             // it has to be an axiom of "this" activity
             String eventGroupName = getEventGroupName(currentOREvents, evs);
             if (eventGroupName.equals("")) {
                 // create a new eventGroup name
-                eventGroupName = getUniqueEventGroupName(currentOREvents);
+                Map<String, List<String>> allOREvents = OntologyDataManager.getAllOREvents(ontology, pm, df);
+                eventGroupName = getUniqueEventGroupName(allOREvents);
             }
             bodyString += String.format("^%s(a,eg_%s)^%s(eg_%s)", Predicate.HAS_EVENT, i, eventGroupName, i);
         }

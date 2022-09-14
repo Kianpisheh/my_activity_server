@@ -164,14 +164,15 @@ public class ActivityService {
         ontology.axioms().forEach(axiom -> {
             if (axiom instanceof SWRLRule) {
                 SWRLRule rule = (SWRLRule) axiom;
-                // event group cleanup
-                List<String> eventGroups = OntologyDataManager.getEventGroupsList(rule);
-                ontology = OntologyDataManager.eventGroupCleanup(eventGroups, OREvents, ontology,
-                        manager.getOWLDataFactory(), pm);
-                // remove swrl rule
                 SWRLAtom act = rule.head().findFirst().get();
                 OWLClass ruleHeadClass = (OWLClass) act.getPredicate();
                 if (activityName.equals(ruleHeadClass.getIRI().getShortForm())) {
+                    // event group cleanup
+                    List<String> eventGroups = OntologyDataManager.getEventGroupsList(rule);
+                    ontology = OntologyDataManager.eventGroupCleanup(eventGroups, OREvents, ontology,
+                            manager.getOWLDataFactory(), pm);
+
+                    // remove swrl rule
                     ontology.remove(rule);
                     return;
                 }
