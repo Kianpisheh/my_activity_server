@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.example.my_activity_server.ActivityList;
 import com.example.my_activity_server.OWLActivity;
+import com.example.my_activity_server.OntologyDataManager;
 import com.example.my_activity_server.SWRLRuleFactory;
 import com.example.my_activity_server.API.OwlToPojo;
 import com.example.my_activity_server.API.PojoToOWL;
@@ -27,7 +28,9 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -35,6 +38,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
 import org.semanticweb.owlapi.model.SetOntologyID;
+import org.semanticweb.owlapi.model.parameters.Navigation;
 import org.springframework.stereotype.Service;
 import org.bson.conversions.Bson;
 
@@ -156,10 +160,15 @@ public class ActivityService {
         String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
         String headString = activityName + "(a)";
 
-        // remove the old swrl rule
+        // remove the old swrl rule and its event groups
         ontology.axioms().forEach(axiom -> {
             if (axiom instanceof SWRLRule) {
                 SWRLRule rule = (SWRLRule) axiom;
+                // event group cleanup
+                List<String> eventGroups = OntologyDataManager.getEventGroupsList(rule);
+                ontology = OntologyDataManager.eventGroupCleanup(eventGroups, OREvents, ontology,
+                        manager.getOWLDataFactory(), pm);
+                // remove swrl rule
                 SWRLAtom act = rule.head().findFirst().get();
                 OWLClass ruleHeadClass = (OWLClass) act.getPredicate();
                 if (activityName.equals(ruleHeadClass.getIRI().getShortForm())) {
@@ -186,39 +195,7 @@ public class ActivityService {
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
         ServiceUtils.saveOntology(ontology, dataset, col);
-    }
-
-    public void addActivity(Map<String, Object> activity, String dataset) {
-        String activityName = ((String) activity.get("name"));
-        List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
-
-        // add the activity into the ontology
-        OWLClass activityClass = manager.getOWLDataFactory().getOWLClass(":" +
-                activityName,
-                pm);
-        OWLClass rootActivityClass = manager.getOWLDataFactory().getOWLClass(":" +
-                ActivityList.ROOT_ACTIVITY, pm);
-        OWLAxiom subclassAxiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom(activityClass,
-                rootActivityClass);
-        ontology.add(subclassAxiom);
-
-        // create the swrl rule
-        String bodyString = PojoToOWL.createSwrlRuleBodyString(activity, ontology, pm, manager.getOWLDataFactory());
-        String headString = activityName + "(a)";
-
-        if (bodyString != "Activity(a)") {
-            SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,
-                    OREvents, manager, ontology, pm);
-            ontology.add(rule);
-        }
-
-        IRI versionIRI = IRI.create(String.valueOf(version));
-        SetOntologyID change = new SetOntologyID(ontology,
-                new OWLOntologyID(ontology.getOntologyID().getOntologyIRI(), Optional.of(versionIRI)));
-        version += 1;
-        ontology.getOWLOntologyManager().applyChange(change);
-        // save the ontology
-        ServiceUtils.saveOntology(ontology, dataset, col);
+        int x = 1;
     }
 
     public void removeActivity(String activity, String dataset) {

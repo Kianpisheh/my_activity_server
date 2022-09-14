@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLClassAtom;
-import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
 
 public class OntologyDataManager {
@@ -92,6 +92,31 @@ public class OntologyDataManager {
             }
         }
         return eventGroups;
+    }
+
+    public static OWLOntology eventGroupCleanup(List<String> eventGroups, List<List<String>> OREvents,
+            OWLOntology ontology, OWLDataFactory df,
+            PrefixManager pm) {
+        for (String eventGroup : eventGroups) {
+            OWLClass eventGroupClass = df.getOWLClass(":" + eventGroup, pm);
+
+            OWLDeclarationAxiom decAx = df.getOWLDeclarationAxiom(eventGroupClass);
+            ontology.remove(decAx);
+
+            OWLClass eventClass = df.getOWLClass(":EVENT", pm);
+            OWLSubClassOfAxiom subAx = df.getOWLSubClassOfAxiom(eventGroupClass, eventClass);
+            ontology.remove(subAx);
+
+            Set<OWLEquivalentClassesAxiom> eqAxs = ontology
+                    .getEquivalentClassesAxioms(df.getOWLClass(":" + eventGroup, pm));
+
+            eqAxs.forEach(ax -> {
+                ontology.remove(ax);
+            });
+
+        }
+
+        return ontology;
     }
 
 }
