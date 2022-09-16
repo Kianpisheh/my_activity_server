@@ -1,5 +1,6 @@
 package com.example.my_activity_server.API;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActionEventConstraintPojo {
@@ -7,6 +8,7 @@ public class ActionEventConstraintPojo {
     List<String> events = null;
     int th1 = -1;
     int th2 = -1;
+    List<Integer> opSize = new ArrayList<>();
 
     public ActionEventConstraintPojo() {
     }
@@ -16,6 +18,14 @@ public class ActionEventConstraintPojo {
         this.events = events;
         this.th1 = th1;
         this.th2 = th2;
+    }
+
+    public ActionEventConstraintPojo(String type, List<String> events, int th1, int th2, List<Integer> opSize) {
+        this.type = type;
+        this.events = events;
+        this.th1 = th1;
+        this.th2 = th2;
+        this.opSize = opSize;
     }
 
     public String getType() {
@@ -48,6 +58,14 @@ public class ActionEventConstraintPojo {
 
     public void setTh2(int th2) {
         this.th2 = th2;
+    }
+
+    public List<Integer> getOpSize() {
+        return opSize;
+    }
+
+    public void setOpSize(List<Integer> opSize) {
+        this.opSize = opSize;
     }
 
 }

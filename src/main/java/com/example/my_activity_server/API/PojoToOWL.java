@@ -1,6 +1,9 @@
 package com.example.my_activity_server.API;
 
+import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +80,20 @@ public class PojoToOWL {
         // add constraints predicates
         for (int i = 0; i < constraints.size(); i++) {
             List<String> constraintEvents = (List<String>) constraints.get(i).get("events");
+            List<Integer> opSize = (List<Integer>) constraints.get(i).get("opSize");
+
             String event1 = constraintEvents.get(0);
             String event2 = event1;
+
+            String constraintType = (String) constraints.get(i).get("type");
+            if (constraintType.contains("or")) {
+                List<String> eventsG = findEventGroup(currentOREvents, constraintEvents, opSize);
+                event1 = eventsG.get(0);
+                if (eventsG.size() > 1) {
+                    event2 = eventsG.get(1);
+                }
+            }
+
             if (constraints.get(i).get("type").equals("time_distance")) {
                 event2 = constraintEvents.get(1);
             }
@@ -91,7 +106,8 @@ public class PojoToOWL {
 
             String evVar1 = retrieveEventVar(event1, bodyString, idx1);
             String evVar2 = evVar1;
-            if (constraints.get(i).get("type").equals("time_distance")) {
+            String consType = (String) constraints.get(i).get("type");
+            if (consType.contains("time_distance")) {
                 evVar2 = retrieveEventVar(event2, bodyString, idx2); // same type interactions
             }
 
@@ -101,7 +117,7 @@ public class PojoToOWL {
             String t2 = "t2_" + evVar1;
             String t1 = "t1_" + evVar1;
             String type = (String) constraints.get(i).get("type");
-            if (type.equals("time_distance")) {
+            if (type.contains("time_distance")) {
                 t2 = "t1_" + evVar2;
                 t1 = "t2_" + evVar1;
             }
@@ -121,8 +137,50 @@ public class PojoToOWL {
 
     private static String retrieveEventVar(String event, String bodyString, int idx) {
         String[] ss = bodyString.split(event + "[(]"); // retireve the event var name
-        String eventVar = ss[1 + idx].substring(0, 3); // (e.g., e_0)
+        int eg = 0;
+        if (event.contains("EventGroup")) {
+            eg = 1;
+        }
+        String eventVar = ss[1 + idx].substring(0, 3 + eg); // (e.g., e_0)
         return eventVar;
+    }
+
+    private static List<String> findEventGroup(Map<String, List<String>> currentOREvents, List<String> constraintEvents,
+            List<Integer> opSize) {
+
+        List<String> eventsG = new ArrayList<>();
+
+        List<String> subEvents = constraintEvents.subList(0, opSize.get(0));
+        if (subEvents.size() == 1) {
+            eventsG.add(subEvents.get(0));
+        } else {
+            for (String evGroup : currentOREvents.keySet()) {
+                List<String> l = currentOREvents.get(evGroup);
+                Collections.sort(l, Collator.getInstance());
+                Collections.sort(subEvents, Collator.getInstance());
+                if (l.equals(subEvents)) {
+                    eventsG.add(evGroup);
+                }
+            }
+        }
+
+        if (opSize.size() > 1) {
+            List<String> subEvents2 = constraintEvents.subList(opSize.get(0), opSize.get(0) + opSize.get(1));
+            if (subEvents2.size() == 1) {
+                eventsG.add(subEvents2.get(0));
+            } else {
+                for (String evGroup : currentOREvents.keySet()) {
+                    List<String> l = currentOREvents.get(evGroup);
+                    Collections.sort(l, Collator.getInstance());
+                    Collections.sort(subEvents2, Collator.getInstance());
+                    if (l.equals(subEvents2)) {
+                        eventsG.add(evGroup);
+                    }
+                }
+            }
+        }
+
+        return eventsG;
     }
 
     private static String getEventGroupName(Map<String, List<String>> ontologyOREvents, List<String> OREvents) {

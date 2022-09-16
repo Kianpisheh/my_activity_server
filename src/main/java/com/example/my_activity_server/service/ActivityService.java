@@ -179,6 +179,7 @@ public class ActivityService {
             }
         });
 
+        // create the new swral rule
         if (bodyString != "Activity(a)") {
             SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,
                     OREvents, manager, ontology, pm);

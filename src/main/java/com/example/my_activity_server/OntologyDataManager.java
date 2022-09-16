@@ -43,7 +43,7 @@ public class OntologyDataManager {
 
                 for (OWLClass memberClass : new ArrayList<>(eventGroupSubClassAxioms.getClassesInSignature())) {
                     String evName = memberClass.getIRI().getShortForm();
-                    if (evName != subEventName) {
+                    if (!evName.equals(subEventName)) {
                         eventGroupMembers.add(evName);
                     }
                 }

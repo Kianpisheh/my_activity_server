@@ -48,7 +48,7 @@ public class OwlToPojo {
         List<List<String>> eventORList = new ArrayList<>(
                 OntologyDataManager.getOREvents(ontology, owlActivity.getRule(), pm, df).values());
 
-        List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms);
+        List<ActionEventConstraintPojo> constraints = getTimeConstraints(atoms, ontology, pm, df);
 
         return new Activity(id, owlActivity.getName(), events, excludedEvents, eventORList, constraints);
     }
@@ -70,7 +70,9 @@ public class OwlToPojo {
                             if (atom2 instanceof SWRLClassAtomImpl) { // event predicate
                                 OWLClassImpl eventPredicate = (OWLClassImpl) atom2.getPredicate();
                                 String predicateName = eventPredicate.getIRI().getShortForm();
-                                events.add(predicateName);
+                                if (!predicateName.contains("EventGroup")) {
+                                    events.add(predicateName);
+                                }
                             }
                         }
                     });
@@ -108,20 +110,27 @@ public class OwlToPojo {
         return excludedEvents;
     }
 
-    public static List<ActionEventConstraintPojo> getTimeConstraints(List<SWRLAtom> atoms) {
+    public static List<ActionEventConstraintPojo> getTimeConstraints(List<SWRLAtom> atoms, OWLOntology ontology,
+            PrefixManager pm,
+            OWLDataFactory df) {
         List<ActionEventConstraintPojo> constraintsPojo = new ArrayList<>();
 
         // get constraint vars
         List<String> constraintVars = getConstraintVar(atoms);
         for (String constraintVar : constraintVars) {
             Map<String, Integer> ths = getThresholds(constraintVar, atoms);
-            List<String> events = getConstraintEvents(constraintVar, atoms);
-            String constraintType = getConstraintType(constraintVar, atoms);
-            if (constraintType.equals("duration")) {
+            Map<String, Object> res = getConstraintEvents(constraintVar, atoms, ontology, pm, df);
+            List<String> events = (List<String>) res.get("events");
+            List<Integer> opSize = (List<Integer>) res.get("opSize");
+            String constraintType = getConstraintType(constraintVar, atoms, opSize);
+            if (constraintType.contains("duration")) {
                 events.remove(1);
+                opSize.remove(1);
             }
+
             constraintsPojo.add(
-                    new ActionEventConstraintPojo(constraintType, events, ths.get("greaterThan"), ths.get("lessThan")));
+                    new ActionEventConstraintPojo(constraintType, events, ths.get("greaterThan"), ths.get("lessThan"),
+                            opSize));
         }
 
         return constraintsPojo;
@@ -348,29 +357,61 @@ public class OwlToPojo {
         return ths;
     }
 
-    private static String getConstraintType(String constraintVar, List<SWRLAtom> atoms) {
+    private static String getConstraintType(String constraintVar, List<SWRLAtom> atoms, List<Integer> opSize) {
         Map<String, String> timeVars = getEventTimeVars(constraintVar, atoms);
         Map<String, String> timeToEventVars = getEventVarsFromTimeVars(timeVars, atoms);
 
         List<String> eventVars = new ArrayList(timeToEventVars.values());
 
         if (eventVars.get(0).equals(eventVars.get(1))) {
+            if (opSize.get(0) + opSize.get(1) > 2) {
+                return "or_duration";
+            }
             return "duration";
         } else {
+            if (opSize.get(0) + opSize.get(1) > 2) {
+                return "or_time_distance";
+            }
             return "time_distance";
         }
     }
 
     // [Pot, Fridge], t_Pot - t_Fridge
-    private static List<String> getConstraintEvents(String constraintVar, List<SWRLAtom> atoms) {
+    private static Map<String, Object> getConstraintEvents(String constraintVar, List<SWRLAtom> atoms,
+            OWLOntology ontology,
+            PrefixManager pm,
+            OWLDataFactory df) {
+
         List<String> events = new ArrayList<>();
+        List<Integer> opSize = new ArrayList<>();
         Map<String, String> timeVars = getEventTimeVars(constraintVar, atoms);
         Map<String, String> timeToEventVars = getEventVarsFromTimeVars(timeVars, atoms);
         Map<String, String> timeToEvent = getEvents(timeToEventVars, atoms);
+        Map<String, List<String>> allEventGroups = OntologyDataManager.getAllOREvents(ontology, pm, df);
 
-        events.add(timeToEvent.get("t1"));
-        events.add(timeToEvent.get("t2"));
-        return events;
+        String event1 = timeToEvent.get("t1");
+        if (event1.contains("EventGroup")) {
+            events.addAll(allEventGroups.get(event1));
+            opSize.add(allEventGroups.get(event1).size());
+        } else {
+            events.add(event1);
+            opSize.add(1);
+        }
+
+        String event2 = timeToEvent.get("t2");
+        if (event2.contains("EventGroup")) {
+            events.addAll(allEventGroups.get(event2));
+            opSize.add(allEventGroups.get(event2).size());
+        } else {
+            events.add(event2);
+            opSize.add(1);
+        }
+
+        Map<String, Object> output = new HashMap<>();
+        output.put("events", events);
+        output.put("opSize", opSize);
+
+        return output;
     }
 
     // {t1: e1, t2: e2} --> {t1: Mug, t2: Kettle}
