@@ -43,7 +43,19 @@ public class OwlToPojo {
     public static Activity getPojoActivity(OWLActivity owlActivity, OWLOntology ontology, PrefixManager pm,
             OWLDataFactory df, int id) {
         List<SWRLAtom> atoms = owlActivity.getRule().bodyList();
-        List<String> events = getEvents(atoms);
+        List<SWRLAtom> atoms2 = new ArrayList<>();
+        for (SWRLAtom atom : atoms) {
+            if (atom instanceof SWRLClassAtom) {
+                SWRLClassAtom atom2 = (SWRLClassAtom) atom;
+                String className = atom2.getPredicate().asOWLClass().getIRI().getShortForm();
+                if (className.equals("Dummy")) {
+                    continue;
+                }
+            }
+            atoms2.add(atom);
+        }
+
+        List<String> events = getEvents(atoms2);
         List<String> excludedEvents = getExcludedEvents(atoms);
         List<List<String>> eventORList = new ArrayList<>(
                 OntologyDataManager.getOREvents(ontology, owlActivity.getRule(), pm, df).values());

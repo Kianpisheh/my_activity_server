@@ -61,6 +61,7 @@ public class PojoToOWL {
         }
 
         // add ORevents predicates
+        Map<String, List<String>> allOREvents = OntologyDataManager.getAllOREvents(ontology, pm, df);
         List<List<String>> OREvents = (List<List<String>>) activity.get("eventORList");
         String activityName = (String) activity.get("name");
         SWRLRule rule = OntologyDataManager.getRule(ontology, activityName);
@@ -71,9 +72,9 @@ public class PojoToOWL {
             String eventGroupName = getEventGroupName(currentOREvents, evs);
             if (eventGroupName.equals("")) {
                 // create a new eventGroup name
-                Map<String, List<String>> allOREvents = OntologyDataManager.getAllOREvents(ontology, pm, df);
                 eventGroupName = getUniqueEventGroupName(allOREvents);
             }
+            allOREvents.put(eventGroupName, evs);
             bodyString += String.format("^%s(a,eg_%s)^%s(eg_%s)", Predicate.HAS_EVENT, i, eventGroupName, i);
         }
 
@@ -206,7 +207,7 @@ public class PojoToOWL {
         }
 
         Arrays.sort(ids);
-        return String.format(Predicate.EVENTGROUP + "%s", ids.length);
+        return String.format(Predicate.EVENTGROUP + "%s", ids[ids.length - 1] + 1);
     }
 
 }

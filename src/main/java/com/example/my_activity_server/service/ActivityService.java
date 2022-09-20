@@ -1,9 +1,5 @@
 package com.example.my_activity_server.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,16 +17,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.eq;
 
-import org.bson.Document;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
-import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -38,9 +30,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.model.SWRLAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
 import org.semanticweb.owlapi.model.SetOntologyID;
-import org.semanticweb.owlapi.model.parameters.Navigation;
 import org.springframework.stereotype.Service;
-import org.bson.conversions.Bson;
 
 @Service
 public class ActivityService {
@@ -180,6 +170,9 @@ public class ActivityService {
         });
 
         // create the new swral rule
+        if (bodyString == "Activity(a)" && !headString.contains("New_activity")) {
+            bodyString += "^hasEvent(a,e_200)^Dummy(e_200)";
+        }
         if (bodyString != "Activity(a)") {
             SWRLRule rule = SWRLRuleFactory.getSWRLRuleFromString(bodyString, headString,
                     OREvents, manager, ontology, pm);
