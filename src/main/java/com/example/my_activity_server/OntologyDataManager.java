@@ -33,7 +33,6 @@ public class OntologyDataManager {
         List<OWLSubClassOfAxiom> subEventClassAxioms = ontology.subClassAxiomsForSuperClass(eventClass)
                 .collect(Collectors.toList());
 
-        List<String> eventGroupMembers = new ArrayList<>();
         for (OWLSubClassOfAxiom ax : subEventClassAxioms) {
             String subEventName = ax.getSubClass().asOWLClass().getIRI().getShortForm();
             if (targetEventGroups.contains(subEventName)) {
@@ -41,6 +40,7 @@ public class OntologyDataManager {
                 OWLEquivalentClassesAxiom eventGroupSubClassAxioms = ontology.equivalentClassesAxioms(eventGroupClass)
                         .findFirst().get();
 
+                List<String> eventGroupMembers = new ArrayList<>();
                 for (OWLClass memberClass : new ArrayList<>(eventGroupSubClassAxioms.getClassesInSignature())) {
                     String evName = memberClass.getIRI().getShortForm();
                     if (!evName.equals(subEventName)) {
@@ -49,7 +49,7 @@ public class OntologyDataManager {
                 }
 
                 if (eventGroupMembers.size() > 0) {
-                    ORevents.put(subEventName, eventGroupMembers);
+                    ORevents.put(subEventName, new ArrayList<>(eventGroupMembers));
                 }
             }
         }

@@ -1,0 +1,1 @@
+[{"name":"MakingCoffee","events":["Cabinet","Closet"],"excludedEvents":[],"constraints":[{"events":["Closet"],"th1":5,"th2":20,"type":"duration","opSize":[1]}],"id":0,"eventORList":[]}]
