@@ -26,6 +26,7 @@ import org.bson.conversions.Bson;
 import com.example.my_activity_server.model.ActivityInstance;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
@@ -49,7 +50,7 @@ public class ServiceUtils {
         } else if (ontologySource.equals("mongo")) {
             // database setup
             try {
-                Document ontDoc = (Document) col.find(eq("name", dataset + "_ontology")).first();
+                Document ontDoc = (Document) col.find(eq("_id", dataset + "_ontology")).first();
                 String ontText = (String) ontDoc.get("ontText");
                 InputStream stream = new ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
                 // manager.clearOntologies();
@@ -105,11 +106,18 @@ public class ServiceUtils {
             try {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 ontology.saveOntology(ontology.getFormat(), outputStream);
-                // String ontText = outputStream.toString(StandardCharsets.UTF_8);
-                String ontText = new String(outputStream.toByteArray(), "UTF-8");
-                Document newDoc = new Document("name", dataset).append("ontText", ontText);
-                Bson query = Filters.eq("name", dataset);
-                col.replaceOne(query, newDoc);
+                String ontText = outputStream.toString(StandardCharsets.UTF_8);
+                // String ontText = new String(outputStream.toByteArray(), "UTF-8");
+                Document newDoc = new Document("_id", dataset + "_ontology").append("ontText", ontText);
+                Bson query = Filters.eq("_id", dataset + "_ontology");
+                FindIterable iter = col.find(new Document("_id", dataset + "_ontology"));
+                if (iter.first() == null) {
+                    System.out.println("insert result:");
+                    System.out.println(col.insertOne(newDoc));
+                } else {
+                    System.out.println("replace result:");
+                    System.out.println(col.replaceOne(query, newDoc));
+                }
 
             } catch (Exception ex) {
                 ex.printStackTrace();

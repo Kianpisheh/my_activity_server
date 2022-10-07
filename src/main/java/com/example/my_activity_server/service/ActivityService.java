@@ -46,6 +46,7 @@ public class ActivityService {
     String ontIRI = "";
     int version = 0;
     String ontologySource = "mongo";
+    String user = "";
 
     String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
     MongoClient mongoClient = MongoClients.create(uri);
@@ -89,15 +90,17 @@ public class ActivityService {
         // }
         // String ontText = outputStream.toString(StandardCharsets.UTF_8);
 
-        // Document ontDoc = new Document("_id", new ObjectId());
+        // Document ontDoc = new Document("_id", dataset + "_ontology");
         // ontDoc.append("ontText", ontText);
-        // ontDoc.append("name", dataset + "_ontology");
         // col.insertOne(ontDoc);
 
         if (ontology != null) {
             manager.removeOntology(ontology);
             ontology = null;
         }
+
+        user = dataset.split("-")[0];
+
         // setup and load the ontolgy
         if (ontology == null) {
             Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager, col,
@@ -194,12 +197,11 @@ public class ActivityService {
                 new OWLOntologyID(ontology.getOntologyID().getOntologyIRI(), Optional.of(versionIRI)));
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
-
         // save the ontology
-        Thread newThread = new Thread(() -> {
-            ServiceUtils.saveOntology(ontology, dataset, col, ontologySource);
-        });
-        newThread.start();
+        // Thread newThread = new Thread(() -> {
+        ServiceUtils.saveOntology(ontology, dataset, col, ontologySource);
+        // });
+        // newThread.start();
 
     }
 
@@ -246,6 +248,6 @@ public class ActivityService {
         Thread newThread = new Thread(() -> {
             ServiceUtils.saveOntology(ontology, dataset, col, ontologySource);
         });
-        newThread.start();
+        newThread.run();
     }
 }

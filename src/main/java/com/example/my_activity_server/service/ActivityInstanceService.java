@@ -102,10 +102,12 @@ public class ActivityInstanceService {
         MongoCollection col = activityService.getDBCollection();
 
         // save the ontology
-        Thread newThread = new Thread(() -> {
-            ServiceUtils.saveOntology(ontology, dataset.get("dataset"), col, activityService.ontologySource);
-        });
-        newThread.start();
+        // Thread newThread = new Thread(() -> {
+        // ServiceUtils.saveOntology(ontology, dataset.get("dataset") + "-" +
+        // activityService.user, col,
+        // activityService.ontologySource);
+        // });
+        // newThread.start();
 
         return activityInstances;
     }
