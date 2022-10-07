@@ -78,7 +78,8 @@ public class ActivityInstanceManager {
             // check if already exist
             for (OWLNamedIndividual ind : ontology.getIndividualsInSignature()) {
                 if (ind.getIRI().getShortForm().equals(instance.getName())) {
-                    System.out.println("The individual '" + instance.getName() + "' already exist");
+                    // System.out.println("The individual '" + instance.getName() + "' already
+                    // exist");
                     continue;
                 }
             }
@@ -115,6 +116,7 @@ public class ActivityInstanceManager {
                         .getOWLDataPropertyAssertionAxiom(dataPropertyStartTime, eventInd,
                                 (double) event.getStartTime());
                 ontology.add(dataPropertyStartTimeAxiom);
+
                 OWLDataPropertyAssertionAxiom dataPropertyEndTimeAxiom = df
                         .getOWLDataPropertyAssertionAxiom(dataPropertyEndTime, eventInd, (double) event.getEndTime());
                 ontology.add(dataPropertyEndTimeAxiom);

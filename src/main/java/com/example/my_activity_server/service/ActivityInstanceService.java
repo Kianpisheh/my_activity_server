@@ -48,7 +48,8 @@ public class ActivityInstanceService {
         pm = activityService.getPrefixManager();
         if (ontology == null) {
             Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager,
-                    activityService.getDBCollection(), dataset.get("dataset") + "-" + dataset.get("user"));
+                    activityService.getDBCollection(), dataset.get("dataset") + "-" + dataset.get("user"),
+                    activityService.ontologySource);
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }
@@ -101,7 +102,10 @@ public class ActivityInstanceService {
         MongoCollection col = activityService.getDBCollection();
 
         // save the ontology
-        ServiceUtils.saveOntology(ontology, dataset.get("dataset"), col);
+        Thread newThread = new Thread(() -> {
+            ServiceUtils.saveOntology(ontology, dataset.get("dataset"), col, activityService.ontologySource);
+        });
+        newThread.start();
 
         return activityInstances;
     }

@@ -1,5 +1,7 @@
 package com.example.my_activity_server.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.nio.charset.StandardCharsets;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -40,6 +45,7 @@ public class ActivityService {
     PrefixManager pm = null;
     String ontIRI = "";
     int version = 0;
+    String ontologySource = "mongo";
 
     String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
     MongoClient mongoClient = MongoClients.create(uri);
@@ -68,8 +74,7 @@ public class ActivityService {
 
     public List<Activity> getActivities(String dataset) {
 
-        // if (dataset.contains("CASAS8")) {
-        // File f = new File("CASAS8_ontology.owl");
+        // File f = new File("../ontologies/" + dataset + "_ontology.owl");
         // try {
         // ontology = manager.loadOntologyFromOntologyDocument(f);
         // } catch (Exception ex) {
@@ -83,10 +88,11 @@ public class ActivityService {
         // ex.printStackTrace();
         // }
         // String ontText = outputStream.toString(StandardCharsets.UTF_8);
-        // Document newDoc = new Document("_id",
-        // "CASAS8").append("ontText", ontText);
-        // col.insertOne(newDoc);
-        // }
+
+        // Document ontDoc = new Document("_id", new ObjectId());
+        // ontDoc.append("ontText", ontText);
+        // ontDoc.append("name", dataset + "_ontology");
+        // col.insertOne(ontDoc);
 
         if (ontology != null) {
             manager.removeOntology(ontology);
@@ -95,7 +101,7 @@ public class ActivityService {
         // setup and load the ontolgy
         if (ontology == null) {
             Map<String, Object> ontologyPm = ServiceUtils.ontologyAssetsSetup(manager, col,
-                    dataset);
+                    dataset, ontologySource);
             ontology = (OWLOntology) ontologyPm.get("ontology");
             pm = (PrefixManager) ontologyPm.get("pm");
         }
@@ -188,9 +194,13 @@ public class ActivityService {
                 new OWLOntologyID(ontology.getOntologyID().getOntologyIRI(), Optional.of(versionIRI)));
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
+
         // save the ontology
-        ServiceUtils.saveOntology(ontology, dataset, col);
-        int x = 1;
+        Thread newThread = new Thread(() -> {
+            ServiceUtils.saveOntology(ontology, dataset, col, ontologySource);
+        });
+        newThread.start();
+
     }
 
     public void removeActivity(String activity, String dataset) {
@@ -233,6 +243,9 @@ public class ActivityService {
         version += 1;
         ontology.getOWLOntologyManager().applyChange(change);
         // save the ontology
-        ServiceUtils.saveOntology(ontology, dataset, col);
+        Thread newThread = new Thread(() -> {
+            ServiceUtils.saveOntology(ontology, dataset, col, ontologySource);
+        });
+        newThread.start();
     }
 }
