@@ -51,6 +51,9 @@ public class ServiceUtils {
             // database setup
             try {
                 Document ontDoc = (Document) col.find(eq("_id", dataset + "_ontology")).first();
+                if (ontDoc == null) {
+                    ontDoc = (Document) col.find(eq("_id", dataset.split("-")[0] + "-kian" + "_ontology")).first();
+                }
                 String ontText = (String) ontDoc.get("ontText");
                 InputStream stream = new ByteArrayInputStream(ontText.getBytes(StandardCharsets.UTF_8));
                 // manager.clearOntologies();

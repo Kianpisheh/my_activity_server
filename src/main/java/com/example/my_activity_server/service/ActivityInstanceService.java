@@ -2,6 +2,7 @@ package com.example.my_activity_server.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -31,6 +32,10 @@ import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import openllet.owlapi.explanation.PelletExplanation;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 @Service
 public class ActivityInstanceService {
     OWLOntologyManager manager = null;
@@ -58,6 +63,10 @@ public class ActivityInstanceService {
         // String path = "../data/" + dataset.get("dataset") + "/";
         // List<ActivityInstance> activityInstances = new ArrayList<>();
         // File folder = new File(path);
+
+        // JSONParser parser = new JSONParser();
+        // try {
+        // Object obj = parser.parse(new FileReader("../data/" + ".json"));
 
         // File f = new File(path, child);
 

@@ -45,7 +45,7 @@ public class ActivityService {
     PrefixManager pm = null;
     String ontIRI = "";
     int version = 0;
-    String ontologySource = "mongo";
+    String ontologySource = "local";
     String user = "";
 
     String uri = "mongodb+srv://kian:mk89081315@cluster0.ekorb.mongodb.net/?retryWrites=true&w=majority";
