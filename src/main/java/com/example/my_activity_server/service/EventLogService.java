@@ -24,7 +24,7 @@ public class EventLogService {
         Path filePath = Path.of("../data/log/" + dataset + "-log.txt");
         try (FileWriter fileWriter = new FileWriter(filePath.toFile(), true)) {
             fileWriter.write(prettyJsonString);
-            fileWriter.write("\n##################################\n");
+            fileWriter.write("\n,\n");
 
         } catch (IOException ex) {
             ex.printStackTrace();
